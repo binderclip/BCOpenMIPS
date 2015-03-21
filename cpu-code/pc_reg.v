@@ -1,3 +1,5 @@
+`include "defines.v"
+
 moudle pc_reg {
 	input wire					clk,
 	input wire					rst,

@@ -1,3 +1,5 @@
+`include "defines.v"
+
 moudle if_id {
 	input wire					clk;
 	input wire					rst;
