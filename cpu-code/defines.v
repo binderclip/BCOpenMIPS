@@ -20,8 +20,6 @@
 `define InterruptNotAssert 1'b0
 `define TrapAssert 1'b1
 `define TrapNotAssert 1'b0
-`define True_v 1'b1
-`define False_v 1'b0
 `define ChipEnable 1'b1
 `define ChipDisable 1'b0
 
@@ -30,10 +28,10 @@
 `define EXE_NOP 6'b000000
 
 // AluOp
-`define EXE_OR_OP 8'b00100101
-`define EXE_ORI_OP 8'b01011010
+`define EXE_OP_OR 8'b00100101
+`define EXE_OP_ORI 8'b01011010
 
-`define EXE_NOP_OP 8'b00000000
+`define EXE_OP_NOP 8'b00000000
 
 // AluSel
 `define EXE_RES_LOGIC 3'b001

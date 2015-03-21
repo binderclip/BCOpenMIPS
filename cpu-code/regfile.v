@@ -1,6 +1,6 @@
 `include "defines.v"
 
-moudle regfile {
+moudle regfile (
 	input wire					rst;
 	input wire					clk;
 	
@@ -15,7 +15,7 @@ moudle regfile {
 	input wire					re2;
 	input wire[`RegAddrBus]		raddr2;
 	output reg[`RegBus]			rdata2;
-};
+);
 
 	// 定义 32 * 32 的寄存器组
 	reg[`RegBus] regs[0 : RegNum - 1];

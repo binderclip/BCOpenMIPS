@@ -1,6 +1,6 @@
 `include "defines.v"
 
-moudle if_id {
+moudle if_id (
 	input wire					clk;
 	input wire					rst;
 	input wire[`InstAddrBus]	if_pc;
@@ -8,7 +8,7 @@ moudle if_id {
 
 	output reg[`InstAddrBus]	id_pc;
 	output reg[`InstBus]		id_inst;
-};
+);
 
 	always @(posedge clk) begin
 		// 非复位状态传送

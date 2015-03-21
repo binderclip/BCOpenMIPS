@@ -1,11 +1,11 @@
 `include "defines.v"
 
-moudle pc_reg {
+moudle pc_reg (
 	input wire					clk,
 	input wire					rst,
 	output reg[`InstAddrBus]	pc,
 	output reg 					ce
-};
+);
 
 	always @(posedge clk) begin
 		// 判断是否处于复位状态

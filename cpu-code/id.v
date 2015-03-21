@@ -1,6 +1,6 @@
 `include "defines.v"
 
-moudle id {
+moudle id ()
 	input wire 					rst;
 	
 	input wire[`InstAddrBus]	pc_i;
@@ -21,7 +21,7 @@ moudle id {
 
 	output reg[`RegAddrBus] 	waddr_o;		// 写入的寄存器的地址
 	output reg 					we_o;			// 是否有需要写入的寄存器
-};
+);
 
 	// 取得指令的指令码
 	// ori 指令只需要判断 31 - 26 bit
