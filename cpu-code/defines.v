@@ -1,6 +1,6 @@
 // 全局宏定义
 `define RstEnable 1'b1				// 复位信号有效
-`define RstDisale 1'b0				// 复位信号无效
+`define RstDisable 1'b0				// 复位信号无效
 `define ZeroWord 32'h00000000		// 32 位的 0
 `define WriteEnable 1'b1			// 写使能
 `define WriteDisable 1'b0			// 写禁止
