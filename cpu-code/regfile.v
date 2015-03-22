@@ -1,20 +1,20 @@
 `include "defines.v"
 
 moudle regfile (
-	input wire					rst;
-	input wire					clk;
+	input wire					rst,
+	input wire					clk,
 	
-	input wire					we;
-	input wire[`RegAddrBus]		waddr;
-	input wire[`RegBus]			wdata;
+	input wire					we,
+	input wire[`RegAddrBus]		waddr,
+	input wire[`RegBus]			wdata,
 
-	input wire					re1;
-	input wire[`RegAddrBus]		raddr1;
-	output reg[`RegBus]			rdata1;
+	input wire					re1,
+	input wire[`RegAddrBus]		raddr1,
+	output reg[`RegBus]			rdata1,
 
-	input wire					re2;
-	input wire[`RegAddrBus]		raddr2;
-	output reg[`RegBus]			rdata2;
+	input wire					re2,
+	input wire[`RegAddrBus]		raddr2,
+	output reg[`RegBus]			rdata2
 );
 
 	// 定义 32 * 32 的寄存器组

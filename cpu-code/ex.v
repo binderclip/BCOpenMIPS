@@ -2,16 +2,16 @@
 
 module ex (
 	input wire 				rst,
-	input wire[AluOpBus]	aluop_i,
-	input wire[AluSelBus]	alusel_i,
-	input wire[RegBus]		reg1_i,
-	input wire[RegBus]		reg2_i,
-	input wire[RegAddrBus]	waddr_i,
+	input wire[`AluOpBus]	aluop_i,
+	input wire[`AluSelBus]	alusel_i,
+	input wire[`RegBus]		reg1_i,
+	input wire[`RegBus]		reg2_i,
+	input wire[`RegAddrBus]	waddr_i,
 	input wire				we_i,
 
-	output reg[RegAddrBus]	waddr_o,
+	output reg[`RegAddrBus]	waddr_o,
 	output reg 				we_o,
-	output reg[RegBus]		wdata_o
+	output reg[`RegBus]		wdata_o
 );
 
 	// 保存运算结果
