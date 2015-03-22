@@ -17,7 +17,7 @@ module pc_reg (
 		end
 	end
 
-	always @(posedge rst) begin
+	always @(posedge clk) begin
 		// 非复位状态地址自增
 		if (ce == `ChipEnable) begin
 			pc <= pc + 4'h4;

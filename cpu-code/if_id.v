@@ -12,13 +12,13 @@ module if_id (
 
 	always @(posedge clk) begin
 		// 非复位状态传送
-		if (rst == `RstDisable) begin
-			id_pc <= if_pc;
-			id_inst <= id_inst;
-		end
-		else begin
+		if (rst == `RstEnable) begin
 			id_pc <= `ZeroWord;
 			id_inst <= `ZeroWord;			
+		end
+		else begin
+			id_pc <= if_pc;
+			id_inst <= if_inst;
 		end
 	end
 

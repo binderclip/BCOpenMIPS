@@ -1,0 +1,78 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Sun Mar 22 08:07:07 2015
+[*]
+[dumpfile] "/Users/clip/Inbox/BYSJ/FPGA/BCOpenMIPS/cpu-code/openmips_min_sopc.vcd"
+[dumpfile_mtime] "Sun Mar 22 07:22:09 2015"
+[dumpfile_size] 15620
+[savefile] "/Users/clip/Inbox/BYSJ/FPGA/BCOpenMIPS/cpu-code/first-pipline-0322.gtkw"
+[timestart] 143200
+[size] 1436 855
+[pos] -135 -1
+*-15.822092 185200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] openmips_min_sopc_tb.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.openmips0.
+[sst_width] 193
+[signals_width] 244
+[sst_expanded] 1
+[sst_vpaned_height] 258
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.clk
+openmips_min_sopc_tb.openmips_min_sopc0.rst
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.pc_reg0.pc[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.if_id0.if_inst[31:0]
+@200
+-PC & IF OK
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.if_id0.id_inst[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.inst_i[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.alusel_o[2:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.aluop_o[7:0]
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.read1_address[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.read2_address[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.waddr_o[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg1_data_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg2_data_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg1_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg2_o[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.we_o
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.waddr_o[4:0]
+@200
+-ID OK
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.alusel_i[2:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.aluop_i[7:0]
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.reg1_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.reg2_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.waddr_i[4:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.we_i
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.waddr_o[4:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.we_o
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.wdata_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.waddr_o[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.wdata_o[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.we_o
+@201
+-EX OK
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem_wb.wb_waddr[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem_wb.wb_wdata[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem_wb.wb_we
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.waddr[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.wdata[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
