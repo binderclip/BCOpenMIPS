@@ -8,9 +8,12 @@ cpu-code/
 ├── id.v
 ├── id_ex.v
 ├── if_id.v
+├── inst_rom.v
 ├── mem.v
 ├── mem_wb.v
 ├── openmips.v
+├── openmips_min_sopc.v
+├── openmips_min_sopc_tb.v
 ├── pc_reg.v
 └── regfile.v
 ```
@@ -81,10 +84,40 @@ mem_wb 模块其实是把数据传递到了 regfile 模块，实际的写入是�
 
 顶层模块其实只是简单的把其他模块实例化和连接。
 
+### 指令存储器 ROM 的实现
+
+#### [inst_rom.v](./inst_rom.v)
+
+从预配置的文件 `inst_rom.data` 中读取数据初始化，然后简单的做一个地址映射，从而实现 ROM。
+
+每行存储 32 位宽度用十六进制表示的指令。类似下面这样：
+
+```
+34011100
+34020020
+3403ff00
+3404ffff
+```
+
+指令地址要除以 4 来和这里的对应。
+
+ROM 里面实际有 10 位宽的数据。
+
+### 最小 SOPC 的实现
+
+做一个 SOPC，仅含有 OpenMIPS、指令存储器 ROM，所以是最小的 SOPC。从指令寄存器读取指令，指令进入 OpenMIPS 执行。
+
+#### [openmips_min_sopc.v](./openmips_min_sopc.v)
+
+#### [openmips_min_sopc_tb.v](./openmips_min_sopc_tb.v)
+
+测试用
+
 ## Todo
 
 - [X]顶层模块
-- []使用查找替换命令修复一点错误
+- [X]使用查找替换命令修复一点错误
+- [X]inst rom 模块
 - []最小 sopc
 - []必须的测试文件
 
@@ -100,6 +133,17 @@ mem_wb 模块其实是把数据传递到了 regfile 模块，实际的写入是�
 #5 rst = 1'b0;
 ```
 
+### 从文本文件中读取数据
+
+使用 `$readmemh` 函数，读取文件内容。
+
+### Testbench 的 timescale
+
+```
+`timescale 仿真时间单位/时间精度
+`timescale 1ns/1ps
+```
+
 ## 疑问
 
 在流水线中，直到最后一级才会把数据写入到寄存器中。那么下一条指令不是已经在第四级了，那么结果数据还能让下一条命令使用吗？如果出现这样的情况要怎么办？
@@ -108,3 +152,4 @@ ROM 和 RAM 是怎样使用的。
 
 写给单片机的 C 语言编译完成后会什么会知道 RAM 占用多少？又没有实际去跑，怎么会知道的？如果使用递归会怎样呢？函数调用的堆栈是由谁来实现的，编译器还是说不用的？
 
+马上到了编译哪里就知道了，加油啊！

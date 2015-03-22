@@ -18,7 +18,7 @@ module ex (
 	reg[`RegBus] logicout;
 
 	// 根据 aluop_i 指定的类型进行运算
-	always @() begin
+	always @(*) begin
 		if (rst == `RstEnable) begin
 			logicout <= `ZeroWord;			
 		end

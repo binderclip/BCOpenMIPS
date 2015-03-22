@@ -1,6 +1,6 @@
 `include "defines.v"
 
-moudle regfile (
+module regfile (
 	input wire					rst,
 	input wire					clk,
 	
@@ -18,7 +18,7 @@ moudle regfile (
 );
 
 	// 定义 32 * 32 的寄存器组
-	reg[`RegBus] regs[0 : RegNum - 1];
+	reg[`RegBus] regs[0 : `RegNum - 1];
 
 	// write
 	always @(posedge clk) begin

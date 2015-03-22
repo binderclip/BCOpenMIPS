@@ -10,7 +10,7 @@ module mem_wb (
 	output reg[`RegAddrBus]		wb_waddr,
 	output reg 					wb_we,
 	output reg[`RegBus]			wb_wdata
-)
+);
 
 	always @(posedge clk) begin
 		if (rst == `RstEnable) begin

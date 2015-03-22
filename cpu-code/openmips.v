@@ -56,10 +56,10 @@ module openmips (
 	// 连接 ID 与 Regfile 的连接
 	wire						reg_re1;
 	wire[`RegAddrBus]			reg_raddr1;
-	wire[`RegBus]				reg_rdata1,
+	wire[`RegBus]				reg_rdata1;
 	wire						reg_re2;
 	wire[`RegAddrBus]			reg_raddr2;
-	wire[`RegBus]				reg_rdata2,
+	wire[`RegBus]				reg_rdata2;
 
 	// pc_reg 模块例化
 	pc_reg pc_reg0 (
@@ -190,7 +190,7 @@ module openmips (
 		// 输出给 mem_wb
 		.waddr_o(mem_waddr_o),
 		.we_o(mem_we_o),
-		.wdata_o(mem_wdata_o),
+		.wdata_o(mem_wdata_o)
 	);
 
 	// MEM/WB 模块例化

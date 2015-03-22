@@ -1,26 +1,26 @@
 `include "defines.v"
 
-moudle id ()
-	input wire 					rst;
+module id (
+	input wire 					rst,
 	
-	input wire[`InstAddrBus]	pc_i;
-	input wire[`InstBus]		inst_i;
-	input wire[`RegBus]			reg1_data_i;
-	input wire[`RegBus]			reg2_data_i;
+	input wire[`InstAddrBus]	pc_i,
+	input wire[`InstBus]		inst_i,
+	input wire[`RegBus]			reg1_data_i,
+	input wire[`RegBus]			reg2_data_i,
 
-	output reg					reg1_re_o;		// regfile 的 re1
-	output reg					reg2_re_o;
-	output reg[`RegAddrBus]		reg1_addr_o;
-	output reg[`RegAddrBus]		reg2_addr_o;
+	output reg					reg1_re_o,		// regfile 的 re1
+	output reg					reg2_re_o,
+	output reg[`RegAddrBus]		reg1_addr_o,
+	output reg[`RegAddrBus]		reg2_addr_o,
 
-	output reg[`AluOpBus]		aluop_o;		// 运算的子类型
-	output reg[`AluSelBus]		alusel_o;		// 运算类型
+	output reg[`AluOpBus]		aluop_o,		// 运算的子类型
+	output reg[`AluSelBus]		alusel_o,		// 运算类型
 
-	output reg[`RegBus] 		reg1_o;			// 运算的源操作数 1
-	output reg[`RegBus]			reg2_o;
+	output reg[`RegBus] 		reg1_o,			// 运算的源操作数 1
+	output reg[`RegBus]			reg2_o,
 
-	output reg[`RegAddrBus] 	waddr_o;		// 写入的寄存器的地址
-	output reg 					we_o;			// 是否有需要写入的寄存器
+	output reg[`RegAddrBus] 	waddr_o,		// 写入的寄存器的地址
+	output reg 					we_o			// 是否有需要写入的寄存器
 );
 
 	// 取得指令的指令码
@@ -34,7 +34,9 @@ moudle id ()
 	wire[4:0] read1_address = inst_i[25:21];
 	wire[4:0] read2_address = inst_i[20:16];
 
-	wire [4:0] imm_i = inst_i[15:0];
+	wire[4:0] i_write_address = inst_i[20:16];		// 立即数状态下的写地址
+
+	wire[15:0] imm_i = inst_i[15:0];
 
 	// 保存需要的立即数
 	reg[`RegBus] imm;
@@ -44,7 +46,7 @@ moudle id ()
 	always @(*) begin
 		if (rst == `RstEnable) begin
 			// NOP 类型
-			aluop_o <= `EXE_NOP_OP;
+			aluop_o <= `EXE_OP_NOP;
 			alusel_o <= `EXE_RES_NOP;
 			waddr_o <= `NOPRegAddr;
 			we_o <= `WriteDisable;
@@ -56,8 +58,8 @@ moudle id ()
 			imm <= `ZeroWord;
 		end
 		else begin
-			aluop_o <= `EXE_NOP_OP;
-			alusel_o <= `EXE_NOP_OP;
+			aluop_o <= `EXE_OP_NOP;
+			alusel_o <= `EXE_OP_NOP;
 			waddr_o <= write_address;
 			we_o <= `WriteDisable;
 			instvalid <= `InstInvalid;
@@ -66,15 +68,16 @@ moudle id ()
 			reg1_addr_o <= read1_address;
 			reg2_addr_o <= read2_address;
 			imm <= `ZeroWord;
-			case (op)
+			case (op1)
 				`EXE_ORI: begin
 					we_o <= `WriteEnable;
-					aluop_o <= `EXE_ORI_OP;
+					aluop_o <= `EXE_OP_ORI;
 					alusel_o <= `EXE_RES_LOGIC;
 					reg1_re_o <= `ReadEnable;
 					reg2_re_o <= `ReadDisable;
-					instvalid <= InstValid;
-					imm <= {16'h0, }
+					imm <= {16'h0, imm_i};
+					waddr_o <= i_write_address;
+					instvalid <= `InstValid;					
 				end
 				default: begin
 				end

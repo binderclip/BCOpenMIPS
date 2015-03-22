@@ -1,6 +1,6 @@
 `include "defines.v"
 
-moudle pc_reg (
+module pc_reg (
 	input wire					clk,
 	input wire					rst,
 	output reg[`InstAddrBus]	pc,
@@ -24,7 +24,7 @@ moudle pc_reg (
 		end
 		// 复位状态地址清零
 		else begin
-			pc <= ZeroWord;
+			pc <= `ZeroWord;
 		end
 	end
 
