@@ -23,19 +23,38 @@
 `define ChipEnable 1'b1
 `define ChipDisable 1'b0
 
-// 具体指令的宏定义
-`define EXE_ORI 6'b001101
-`define EXE_NOP 6'b000000
+// 指令的大类和立即数指令的类型
+`define EXE_SPECIAL		6'b000000
+`define EXE_ANDI 		6'b001100
+`define EXE_ORI 		6'b001101
+`define EXE_XORI 		6'b001110
+`define EXE_LUI 		6'b001111
+`define EXE_PREF		6'b110011
 
-// AluOp
-`define EXE_OP_OR 8'b00100101
-`define EXE_OP_ORI 8'b01011010
-
-`define EXE_OP_NOP 8'b00000000
+// EXE_SPECIAL 寄存器型指令的子类型
+// 移位操作
+`define EXE_SPC_SLL 	6'b000000
+`define EXE_SPC_SRL 	6'b000010
+`define EXE_SPC_SRA 	6'b000011
+`define EXE_SPC_SLLV 	6'b000100
+`define EXE_SPC_SRLV 	6'b000110
+`define EXE_SPC_SRAV 	6'b000111
+// 逻辑运算
+`define EXE_SPC_AND 	6'b100100
+`define EXE_SPC_OR 		6'b100101
+`define EXE_SPC_XOR 	6'b100110
+`define EXE_SPC_NOR		6'b100111
 
 // AluSel
-`define EXE_RES_LOGIC 3'b001
-`define EXE_RES_NOP 3'b000
+`define EXE_RES_NOP		3'b000
+`define EXE_RES_LOGIC 	3'b001
+
+// AluOp
+`define EXE_OP_NOP_NOP 		8'b00000000
+`define EXE_OP_LOGIC_AND	8'b00000001
+`define EXE_OP_LOGIC_OR		8'b00000010
+`define EXE_OP_LOGIC_XOR 	8'b00000011
+`define EXE_OP_LOGIC_NOR 	8'b00000100
 
 // 与指令存储器 ROM 相关的指令
 `define InstAddrBus 31:0

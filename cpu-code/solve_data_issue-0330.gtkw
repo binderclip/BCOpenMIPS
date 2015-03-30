@@ -1,0 +1,40 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Mon Mar 30 12:57:59 2015
+[*]
+[dumpfile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/openmips_min_sopc.vcd"
+[dumpfile_mtime] "Mon Mar 30 12:53:57 2015"
+[dumpfile_size] 16899
+[savefile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/solve_data_issue-0330.gtkw"
+[timestart] 217000
+[size] 1436 855
+[pos] -1 -1
+*-15.000000 319500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] openmips_min_sopc_tb.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.openmips0.
+[sst_width] 193
+[signals_width] 211
+[sst_expanded] 1
+[sst_vpaned_height] 258
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.if_id0.id_inst[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg1_addr_o[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg2_addr_o[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.ex_waddr_i[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.ex_wdata_i[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.ex_we_i
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.mem_waddr_i[4:0]
+@23
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.mem_wdata_i[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.mem_we_i
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.waddr[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.wdata[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.we
+[pattern_trace] 1
+[pattern_trace] 0

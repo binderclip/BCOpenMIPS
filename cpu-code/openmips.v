@@ -37,6 +37,11 @@ module openmips (
 	wire 						ex_we_o;
 	wire[`RegBus]				ex_wdata_o;
 
+	// 连接 EX 的输出与 ID 的输入
+	wire[`RegAddrBus]			ex_id_waddr_o;
+	wire						ex_id_we_o;
+	wire[`RegBus]				ex_id_wdata_o;
+
 	// 连接 EX/MEM 的输出与 MEM 的输入
 	wire						mem_rst;
 	wire[`RegAddrBus]			mem_waddr_i;
@@ -47,6 +52,11 @@ module openmips (
 	wire[`RegAddrBus] 			mem_waddr_o;
 	wire 						mem_we_o;
 	wire[`RegBus]				mem_wdata_o;
+
+	// 连接 MEM 的输出和 ID 的输入
+	wire[`RegAddrBus]			mem_id_waddr_o;
+	wire						mem_id_we_o;
+	wire[`RegBus]				mem_id_wdata_o;
 
 	// 连接 MEM/WB 的输出与回写阶段的输入
 	wire						wb_we_i;
@@ -90,6 +100,16 @@ module openmips (
 		// 来自 regfile 的输入
 		.reg1_data_i(reg_rdata1),
 		.reg2_data_i(reg_rdata2),
+
+		// 来自 EX 的输入
+		.ex_waddr_i(ex_id_waddr_o),
+		.ex_we_i(ex_id_we_o),
+		.ex_wdata_i(ex_id_wdata_o),
+
+		// 来自 MEM 的输入
+		.mem_waddr_i(mem_id_waddr_o),
+		.mem_we_i(mem_id_we_o),
+		.mem_wdata_i(mem_id_wdata_o),
 
 		// 输出给 regfile
 		.reg1_re_o(reg_re1),
@@ -162,7 +182,12 @@ module openmips (
 		// 输出给 mem
 		.waddr_o(ex_waddr_o),
 		.we_o(ex_we_o),
-		.wdata_o(ex_wdata_o)
+		.wdata_o(ex_wdata_o),
+
+		// 输出给 ID
+		.waddr_id_o(ex_id_waddr_o),
+		.we_id_o(ex_id_we_o),
+		.wdata_id_o(ex_id_wdata_o)
 	);
 
 	// EX/MEM 模块例化
@@ -190,7 +215,12 @@ module openmips (
 		// 输出给 mem_wb
 		.waddr_o(mem_waddr_o),
 		.we_o(mem_we_o),
-		.wdata_o(mem_wdata_o)
+		.wdata_o(mem_wdata_o),
+
+		// 输出给 ID
+		.waddr_id_o(mem_id_waddr_o),
+		.we_id_o(mem_id_we_o),
+		.wdata_id_o(mem_id_wdata_o)
 	);
 
 	// MEM/WB 模块例化
