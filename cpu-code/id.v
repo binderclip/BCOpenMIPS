@@ -25,9 +25,9 @@ module id (
 	output reg[`RegAddrBus]		reg1_addr_o,
 	output reg[`RegAddrBus]		reg2_addr_o,
 
-	output reg[`AluOpBus]		aluop_o,		// 运算的子类型
 	output reg[`AluSelBus]		alusel_o,		// 运算类型
-
+	output reg[`AluOpBus]		aluop_o,		// 运算的子类型
+	
 	output reg[`RegBus] 		reg1_o,			// 运算的源操作数 1
 	output reg[`RegBus]			reg2_o,
 
@@ -41,11 +41,10 @@ module id (
 	wire[4:0] op_rs = inst_i[25:21];		// 5
 	wire[4:0] op_rt = inst_i[20:16];		// 5
 	wire[4:0] op_rd = inst_i[15:11];		// 5
-	wire[4:0] op_sa = inst_i[10:6];			// 5
+	wire[4:0] op_sa = inst_i[10:6];			// 5 在 sll、srl、sra 的时候使用
 	wire[5:0] op_subclass = inst_i[5:0];	// 6
 	
 	wire[4:0] r_read1_address = op_rs;
-	wire[4:0] r_read1b_address = op_sa;		// 在 sll、srl、sra 的时候使用
 	wire[4:0] r_read2_address = op_rt;
 	wire[4:0] r_write_address = op_rd;
 	
@@ -61,11 +60,11 @@ module id (
 	always @(*) begin
 		if (rst == `RstEnable) begin
 			// NOP 类型
-			aluop_o <= `EXE_OP_NOP_NOP;
 			alusel_o <= `EXE_RES_NOP;
-			waddr_o <= `NOPRegAddr;
-			we_o <= `WriteDisable;
+			aluop_o <= `EXE_OP_NOP_NOP;
 			instvalid <= `InstValid;
+			we_o <= `WriteDisable;
+			waddr_o <= `NOPRegAddr;
 			reg1_re_o <= `ReadDisable;
 			reg2_re_o <= `ReadDisable;
 			reg1_addr_o <= `NOPRegAddr;
@@ -73,11 +72,11 @@ module id (
 			imm <= `ZeroWord;
 		end
 		else begin
+			alusel_o <= `EXE_RES_NOP;
 			aluop_o <= `EXE_OP_NOP_NOP;
-			alusel_o <= `EXE_OP_NOP_NOP;
-			waddr_o <= r_write_address;
-			we_o <= `WriteDisable;
 			instvalid <= `InstInvalid;
+			we_o <= `WriteDisable;
+			waddr_o <= r_write_address;
 			reg1_re_o <= `ReadDisable;
 			reg2_re_o <= `ReadDisable;
 			reg1_addr_o <= r_read1_address;
@@ -86,16 +85,36 @@ module id (
 			case (op_class)
 				`EXE_SPECIAL: begin
 					if (op_rs == 0) begin
-						reg1_addr_o <= r_read1b_address;
 						case (op_subclass)
 							`EXE_SPC_SLL: begin
-								
+								alusel_o <= `EXE_RES_SHIFT;
+								aluop_o <= `EXE_OP_SHIFT_SLL;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadDisable;
+								reg2_re_o <= `ReadEnable;
+								imm <= {`ZeroWord[`RegWidth - 1 : 5], op_sa};	// 不晓得这里这样对不对
 							end
 							`EXE_SPC_SRL: begin
-								
+								alusel_o <= `EXE_RES_SHIFT;
+								aluop_o <= `EXE_OP_SHIFT_SRL;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadDisable;
+								reg2_re_o <= `ReadEnable;
+								imm <= {`ZeroWord[`RegWidth - 1 : 5], op_sa};	// 不晓得这里这样对不对
 							end
 							`EXE_SPC_SRA: begin
-								
+								alusel_o <= `EXE_RES_SHIFT;
+								aluop_o <= `EXE_OP_SHIFT_SRA;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadDisable;
+								reg2_re_o <= `ReadEnable;
+								imm <= {`ZeroWord[`RegWidth - 1 : 5], op_sa};	// 不晓得这里这样对不对
 							end
 							default: begin
 							end
@@ -104,25 +123,67 @@ module id (
 					if (op_sa == 0) begin
 						case (op_subclass)
 							`EXE_SPC_SLLV: begin
-								
+								alusel_o <= `EXE_RES_SHIFT;
+								aluop_o <= `EXE_OP_SHIFT_SLL;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
 							end
 							`EXE_SPC_SRLV: begin
-								
+								alusel_o <= `EXE_RES_SHIFT;
+								aluop_o <= `EXE_OP_SHIFT_SRL;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
 							end
 							`EXE_SPC_SRAV: begin
-								
+								alusel_o <= `EXE_RES_SHIFT;
+								aluop_o <= `EXE_OP_SHIFT_SRA;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
 							end
 							`EXE_SPC_AND: begin
-								
+								alusel_o <= `EXE_RES_LOGIC;
+								aluop_o <= `EXE_OP_LOGIC_AND;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
 							end
 							`EXE_SPC_OR: begin
-								
+								alusel_o <= `EXE_RES_LOGIC;
+								aluop_o <= `EXE_OP_LOGIC_OR;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
 							end
 							`EXE_SPC_XOR: begin
-								
+								alusel_o <= `EXE_RES_LOGIC;
+								aluop_o <= `EXE_OP_LOGIC_XOR;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
 							end
 							`EXE_SPC_NOR: begin
-								
+								alusel_o <= `EXE_RES_LOGIC;
+								aluop_o <= `EXE_OP_LOGIC_NOR;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								waddr_o <= r_write_address;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
 							end
 							default: begin
 							end
@@ -130,24 +191,54 @@ module id (
 					end
 				end
 				`EXE_ANDI: begin
-					// we_o <= `WriteEnable;
-
-				end
-				`EXE_ORI: begin
-					we_o <= `WriteEnable;
-					aluop_o <= `EXE_OP_LOGIC_OR;
 					alusel_o <= `EXE_RES_LOGIC;
+					aluop_o <= `EXE_OP_LOGIC_AND;
+					instvalid <= `InstValid;					
+					we_o <= `WriteEnable;
+					waddr_o <= i_write_address;
 					reg1_re_o <= `ReadEnable;
 					reg2_re_o <= `ReadDisable;
 					imm <= {16'h0, i_imm};
-					waddr_o <= i_write_address;
+				end
+				`EXE_ORI: begin
+					alusel_o <= `EXE_RES_LOGIC;
+					aluop_o <= `EXE_OP_LOGIC_OR;
 					instvalid <= `InstValid;					
+					we_o <= `WriteEnable;
+					waddr_o <= i_write_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+					imm <= {16'h0, i_imm};
 				end
 				`EXE_XORI: begin
-					
+					alusel_o <= `EXE_RES_LOGIC;
+					aluop_o <= `EXE_OP_LOGIC_XOR;
+					instvalid <= `InstValid;					
+					we_o <= `WriteEnable;
+					waddr_o <= i_write_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+					imm <= {16'h0, i_imm};
+				end
+				`EXE_NORI: begin
+					alusel_o <= `EXE_RES_LOGIC;
+					aluop_o <= `EXE_OP_LOGIC_NOR;
+					instvalid <= `InstValid;					
+					we_o <= `WriteEnable;
+					waddr_o <= i_write_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+					imm <= {16'h0, i_imm};
 				end
 				`EXE_LUI: begin
-					
+					alusel_o <= `EXE_RES_LOGIC;
+					aluop_o <= `EXE_OP_LOGIC_AND;
+					instvalid <= `InstValid;					
+					we_o <= `WriteEnable;
+					waddr_o <= i_write_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+					imm <= {i_imm, 16'h0};
 				end
 				`EXE_PREF: begin
 					// 不存在 cache，此命令暂时当做 NOP 处理

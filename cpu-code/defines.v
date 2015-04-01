@@ -25,11 +25,11 @@
 
 // 指令的大类和立即数指令的类型
 `define EXE_SPECIAL		6'b000000
-`define EXE_ANDI 		6'b001100
-`define EXE_ORI 		6'b001101
-`define EXE_XORI 		6'b001110
-`define EXE_LUI 		6'b001111
-`define EXE_PREF		6'b110011
+`define EXE_ANDI 		6'b001100		// AND
+`define EXE_ORI 		6'b001101		// OR
+`define EXE_XORI 		6'b001110		// OR
+`define EXE_LUI 		6'b001111		// OR
+`define EXE_PREF		6'b110011		// NOP
 
 // EXE_SPECIAL 寄存器型指令的子类型
 // 移位操作
@@ -44,17 +44,27 @@
 `define EXE_SPC_OR 		6'b100101
 `define EXE_SPC_XOR 	6'b100110
 `define EXE_SPC_NOR		6'b100111
+// 其他运算（可以被当做移位操作来处理）
+`define EXE_SPC_NOP		6'b000000
+`define EXE_SPC_SSNOP	6'b000000
+`define EXE_SPC_SYNC	6'b001111
 
 // AluSel
 `define EXE_RES_NOP		3'b000
 `define EXE_RES_LOGIC 	3'b001
+`define EXE_RES_SHIFT	3'b010
 
 // AluOp
 `define EXE_OP_NOP_NOP 		8'b00000000
+
 `define EXE_OP_LOGIC_AND	8'b00000001
 `define EXE_OP_LOGIC_OR		8'b00000010
 `define EXE_OP_LOGIC_XOR 	8'b00000011
 `define EXE_OP_LOGIC_NOR 	8'b00000100
+
+`define EXE_OP_SHIFT_SLL	8'b00000101
+`define EXE_OP_SHIFT_SRL	8'b00000110
+`define EXE_OP_SHIFT_SRA	8'b00000111
 
 // 与指令存储器 ROM 相关的指令
 `define InstAddrBus 31:0
