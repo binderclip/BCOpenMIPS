@@ -22,6 +22,7 @@ module ex (
 
 	// 保存运算结果
 	reg[`RegBus] logicout;
+	reg[`RegBus] shiftout;
 
 	// 根据 alusel_i 指示的运算类型，选择一个运算结果作为最终结果
 	always @(*) begin
@@ -34,6 +35,10 @@ module ex (
 			`EXE_RES_LOGIC: begin
 				wdata_o <= logicout;
 				wdata_id_o <= logicout;
+			end
+			`EXE_RES_SHIFT: begin
+				wdata_o <= shiftout;
+				wdata_id_o <= shiftout;
 			end
 			default: begin
 				wdata_o <= `ZeroWord;
@@ -49,11 +54,52 @@ module ex (
 		end
 		else begin
 			case (aluop_i)
+				`EXE_OP_LOGIC_AND: begin
+					logicout <= reg1_i & reg2_i;
+				end
 				`EXE_OP_LOGIC_OR: begin
 					logicout <= reg1_i | reg2_i;
 				end
+				`EXE_OP_LOGIC_XOR: begin
+					logicout <= reg1_i ^ reg2_i;
+				end
+				`EXE_OP_LOGIC_NOR: begin
+					logicout <= ~(reg1_i | reg2_i);
+				end
+				`EXE_OP_SHIFT_SLL: begin
+					logicout <= reg2_i << reg1_i[4:0];
+				end
+				`EXE_OP_SHIFT_SRL: begin
+					logicout <= reg2_i >> reg1_i[4:0];
+				end
+				`EXE_OP_SHIFT_SRA: begin
+					
+				end
 				default: begin
 					logicout <= `ZeroWord;
+				end
+			endcase
+		end
+	end
+
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			shiftout <= `ZeroWord;			
+		end
+		else begin
+			case (aluop_i)
+				`EXE_OP_SHIFT_SLL: begin
+					shiftout <= reg2_i << reg1_i[4:0];
+				end
+				`EXE_OP_SHIFT_SRL: begin
+					shiftout <= reg2_i >> reg1_i[4:0];
+				end
+				`EXE_OP_SHIFT_SRA: begin
+					// 算数右移的操作相对复杂一些
+					shiftout <= (reg2_i >> reg1_i[4:0]) | ({32{reg2_i[31]}} << (6'd32 - {1'b0, reg1_i[4:0]}));
+				end
+				default: begin
+					shiftout <= `ZeroWord;
 				end
 			endcase
 		end

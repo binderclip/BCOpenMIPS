@@ -33,7 +33,7 @@ module regfile (
 	// read 1
 	always @(*) begin
 		// 读取的时候有很多的特殊状态
-		if (rst == `RstDisable) begin
+		if (rst == `RstEnable) begin
 			rdata1 <= `ZeroWord;
 		end
 		else if (raddr1 == `RegNumLog2'b0) begin
@@ -52,7 +52,7 @@ module regfile (
 
 	// read 2
 	always @(*) begin
-		if (rst == `RstDisable) begin
+		if (rst == `RstEnable) begin
 			rdata2 <= `ZeroWord;
 		end
 		else if (raddr2 == `RegNumLog2'b0) begin

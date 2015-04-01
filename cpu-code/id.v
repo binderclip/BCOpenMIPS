@@ -94,7 +94,9 @@ module id (
 								waddr_o <= r_write_address;
 								reg1_re_o <= `ReadDisable;
 								reg2_re_o <= `ReadEnable;
-								imm <= {`ZeroWord[`RegWidth - 1 : 5], op_sa};	// 不晓得这里这样对不对
+								// imm <= {`ZeroWord[`RegWidth - 1 : 5], op_sa};	// 不晓得这里这样对不对
+								// imm <= {16'h0000[16:5], op_sa};	// 不晓得这里这样对不对
+								imm <= {11'h000, op_sa};	// 不晓得这里这样对不对
 							end
 							`EXE_SPC_SRL: begin
 								alusel_o <= `EXE_RES_SHIFT;
@@ -104,7 +106,7 @@ module id (
 								waddr_o <= r_write_address;
 								reg1_re_o <= `ReadDisable;
 								reg2_re_o <= `ReadEnable;
-								imm <= {`ZeroWord[`RegWidth - 1 : 5], op_sa};	// 不晓得这里这样对不对
+								imm <= {11'h000, op_sa};	// 不晓得这里这样对不对
 							end
 							`EXE_SPC_SRA: begin
 								alusel_o <= `EXE_RES_SHIFT;
@@ -114,7 +116,7 @@ module id (
 								waddr_o <= r_write_address;
 								reg1_re_o <= `ReadDisable;
 								reg2_re_o <= `ReadEnable;
-								imm <= {`ZeroWord[`RegWidth - 1 : 5], op_sa};	// 不晓得这里这样对不对
+								imm <= {11'h000, op_sa};	// 不晓得这里这样对不对
 							end
 							default: begin
 							end
@@ -220,19 +222,19 @@ module id (
 					reg2_re_o <= `ReadDisable;
 					imm <= {16'h0, i_imm};
 				end
-				`EXE_NORI: begin
-					alusel_o <= `EXE_RES_LOGIC;
-					aluop_o <= `EXE_OP_LOGIC_NOR;
-					instvalid <= `InstValid;					
-					we_o <= `WriteEnable;
-					waddr_o <= i_write_address;
-					reg1_re_o <= `ReadEnable;
-					reg2_re_o <= `ReadDisable;
-					imm <= {16'h0, i_imm};
-				end
+				// `EXE_NORI: begin
+				// 	alusel_o <= `EXE_RES_LOGIC;
+				// 	aluop_o <= `EXE_OP_LOGIC_NOR;
+				// 	instvalid <= `InstValid;					
+				// 	we_o <= `WriteEnable;
+				// 	waddr_o <= i_write_address;
+				// 	reg1_re_o <= `ReadEnable;
+				// 	reg2_re_o <= `ReadDisable;
+				// 	imm <= {16'h0, i_imm};
+				// end
 				`EXE_LUI: begin
 					alusel_o <= `EXE_RES_LOGIC;
-					aluop_o <= `EXE_OP_LOGIC_AND;
+					aluop_o <= `EXE_OP_LOGIC_OR;
 					instvalid <= `InstValid;					
 					we_o <= `WriteEnable;
 					waddr_o <= i_write_address;

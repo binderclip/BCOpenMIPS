@@ -32,6 +32,14 @@ module openmips_min_sopc_tb ();
 	initial begin
 		$dumpfile("openmips_min_sopc.vcd");
 		$dumpvars(0, openmips_min_sopc0);
+		$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[0]);
+		$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[1]);
+		$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[2]);
+		$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[3]);
+		$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[4]);
+		// for (reg [31:0] idx = 0; idx < 32; idx++) begin
+		// 	$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[idx]);
+		// end
 	end
 
 endmodule

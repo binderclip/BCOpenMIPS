@@ -1,0 +1,63 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Wed Apr  1 14:53:09 2015
+[*]
+[dumpfile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/openmips_min_sopc.vcd"
+[dumpfile_mtime] "Wed Apr  1 14:50:38 2015"
+[dumpfile_size] 30371
+[savefile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/c5_2_shift-0401.gtkw"
+[timestart] 0
+[size] 1436 855
+[pos] -1 -1
+*-15.000000 398300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] openmips_min_sopc_tb.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.openmips0.
+[sst_width] 193
+[signals_width] 239
+[sst_expanded] 1
+[sst_vpaned_height] 258
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.inst_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg1_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg2_o[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg2_re_o
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg2_addr_o[4:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.re2
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.raddr2[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.rdata2[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.waddr[4:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.wdata[31:0]
+@200
+-ID in and out
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.reg1_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.reg2_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.wdata_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.wdata_id_o[31:0]
+@200
+-EX out
+@23
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.wdata_o[31:0]
+@200
+-MEM out
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[0][31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[1][31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[2][31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[3][31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[4][31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.re1
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.re2
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.rdata1[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.rdata2[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.rst
+[pattern_trace] 1
+[pattern_trace] 0
