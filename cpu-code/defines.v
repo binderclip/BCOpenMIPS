@@ -39,6 +39,13 @@
 `define EXE_SPC_SLLV 	6'b000100
 `define EXE_SPC_SRLV 	6'b000110
 `define EXE_SPC_SRAV 	6'b000111
+// 移动操作
+`define EXE_SPC_MOVZ	6'b001010
+`define EXE_SPC_MOVN	6'b001011
+`define EXE_SPC_MFHI	6'b010000
+`define EXE_SPC_MTHI	6'b010001
+`define EXE_SPC_MFLO	6'b010010
+`define EXE_SPC_MTLO	6'b010011
 // 逻辑运算
 `define EXE_SPC_AND 	6'b100100
 `define EXE_SPC_OR 		6'b100101
@@ -53,6 +60,7 @@
 `define EXE_RES_NOP		3'b000
 `define EXE_RES_LOGIC 	3'b001
 `define EXE_RES_SHIFT	3'b010
+`define EXE_RES_MOVE	3'b011
 
 // AluOp
 `define EXE_OP_NOP_NOP 		8'b00000000
@@ -65,6 +73,14 @@
 `define EXE_OP_SHIFT_SLL	8'b00000101
 `define EXE_OP_SHIFT_SRL	8'b00000110
 `define EXE_OP_SHIFT_SRA	8'b00000111
+
+`define EXE_OP_MOVE_MOVZ	8'b00001000
+`define EXE_OP_MOVE_MOVN	8'b00001001
+`define EXE_OP_MOVE_MFHI	8'b00001010
+`define EXE_OP_MOVE_MFLO	8'b00001011
+
+`define EXE_OP_OTHER_MTHI	8'b00001100
+`define EXE_OP_OTHER_MTLO	8'b00001101
 
 // 与指令存储器 ROM 相关的指令
 `define InstAddrBus 31:0

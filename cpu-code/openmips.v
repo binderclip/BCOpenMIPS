@@ -36,32 +36,40 @@ module openmips (
 	wire[`RegAddrBus]			ex_waddr_o;
 	wire 						ex_we_o;
 	wire[`RegBus]				ex_wdata_o;
-
-	// 连接 EX 的输出与 ID 的输入
-	wire[`RegAddrBus]			ex_id_waddr_o;
-	wire						ex_id_we_o;
-	wire[`RegBus]				ex_id_wdata_o;
+	wire						ex_whilo_o;
+	wire[`RegBus]				ex_hi_o;
+	wire[`RegBus]				ex_lo_o;
 
 	// 连接 EX/MEM 的输出与 MEM 的输入
 	wire						mem_rst;
 	wire[`RegAddrBus]			mem_waddr_i;
 	wire						mem_we_i;
 	wire[`RegBus]				mem_wdata_i;
+	wire						mem_whilo_i;
+	wire[`RegBus]				mem_hi_i;
+	wire[`RegBus]				mem_lo_i;
 
 	// 连接 MEM 的输出和 MEM/WB 的输入
 	wire[`RegAddrBus] 			mem_waddr_o;
 	wire 						mem_we_o;
 	wire[`RegBus]				mem_wdata_o;
-
-	// 连接 MEM 的输出和 ID 的输入
-	wire[`RegAddrBus]			mem_id_waddr_o;
-	wire						mem_id_we_o;
-	wire[`RegBus]				mem_id_wdata_o;
+	wire						mem_whilo_o;
+	wire[`RegBus]				mem_hi_o;
+	wire[`RegBus]				mem_lo_o;
 
 	// 连接 MEM/WB 的输出与回写阶段的输入
 	wire						wb_we_i;
 	wire[`RegAddrBus]			wb_waddr_i;
 	wire[`RegBus]				wb_wdata_i;
+
+	// 连接 MEM/WB 的输出与 hilo_reg 的输入
+	wire						hilo_whilo_i;
+	wire[`RegBus]				hilo_hi_i;
+	wire[`RegBus]				hilo_lo_i;
+
+	// 连接 hilo_reg 的输出与 EX 的输入
+	wire[`RegBus]				hilo_hi_o;
+	wire[`RegBus]				hilo_lo_o;
 
 	// 连接 ID 与 Regfile 的连接
 	wire						reg_re1;
@@ -102,14 +110,14 @@ module openmips (
 		.reg2_data_i(reg_rdata2),
 
 		// 来自 EX 的输入
-		.ex_waddr_i(ex_id_waddr_o),
-		.ex_we_i(ex_id_we_o),
-		.ex_wdata_i(ex_id_wdata_o),
+		.ex_waddr_i(ex_waddr_o),
+		.ex_we_i(ex_we_o),
+		.ex_wdata_i(ex_wdata_o),
 
 		// 来自 MEM 的输入
-		.mem_waddr_i(mem_id_waddr_o),
-		.mem_we_i(mem_id_we_o),
-		.mem_wdata_i(mem_id_wdata_o),
+		.mem_waddr_i(mem_waddr_o),
+		.mem_we_i(mem_we_o),
+		.mem_wdata_i(mem_wdata_o),
 
 		// 输出给 regfile
 		.reg1_re_o(reg_re1),
@@ -171,7 +179,7 @@ module openmips (
 	ex ex0 (
 		.rst(rst),
 
-		// 从 id_ex 的输入
+		// 从 ID_EX 输入
 		.aluop_i(ex_aluop_i),
 		.alusel_i(ex_alusel_i),
 		.reg1_i(ex_reg1_i),
@@ -179,15 +187,27 @@ module openmips (
 		.waddr_i(ex_waddr_i),
 		.we_i(ex_we_i),
 
-		// 输出给 mem
+		// 从 hilo_reg 输入
+		.hi_i(hilo_hi_o),
+		.lo_i(hilo_lo_o),
+
+		// 从 MEM/WB 输入
+		.wb_whilo_i(hilo_whilo_i),
+		.wb_hi_i(hilo_hi_i),
+		.wb_lo_i(hilo_lo_i),
+
+		// 从 MEM 输入
+		.mem_whilo_i(mem_whilo_o),
+		.mem_hi_i(mem_hi_o),
+		.mem_lo_i(mem_lo_o),
+
+		// 输出给 EX/MEM
 		.waddr_o(ex_waddr_o),
 		.we_o(ex_we_o),
 		.wdata_o(ex_wdata_o),
-
-		// 输出给 ID
-		.waddr_id_o(ex_id_waddr_o),
-		.we_id_o(ex_id_we_o),
-		.wdata_id_o(ex_id_wdata_o)
+		.whilo_o(ex_whilo_o),
+		.hi_o(ex_hi_o),
+		.lo_o(ex_lo_o)
 	);
 
 	// EX/MEM 模块例化
@@ -197,43 +217,76 @@ module openmips (
 		.ex_waddr(ex_waddr_o),
 		.ex_we(ex_we_o),
 		.ex_wdata(ex_wdata_o),
+		.ex_whilo(ex_whilo_o),
+		.ex_hi(ex_hi_o),
+		.ex_lo(ex_lo_o),
 
 		.mem_waddr(mem_waddr_i),
 		.mem_we(mem_we_i),
-		.mem_wdata(mem_wdata_i)
+		.mem_wdata(mem_wdata_i),
+		.mem_whilo(mem_whilo_i),
+		.mem_hi(mem_hi_i),
+		.mem_lo(mem_lo_i)
 	);
 
 	// MEM 模块例化
 	mem mem0 (
 		.rst(rst),
 
-		// ex_mem 的输入
+		// EX/MEM 的输入
 		.waddr_i(mem_waddr_i),
 		.we_i(mem_we_i),
 		.wdata_i(mem_wdata_i),
+		.whilo_i(mem_whilo_i),
+		.hi_i(mem_hi_i),
+		.lo_i(mem_lo_i),
 
-		// 输出给 mem_wb
+		// 输出给 MEM/WB
 		.waddr_o(mem_waddr_o),
 		.we_o(mem_we_o),
 		.wdata_o(mem_wdata_o),
-
-		// 输出给 ID
-		.waddr_id_o(mem_id_waddr_o),
-		.we_id_o(mem_id_we_o),
-		.wdata_id_o(mem_id_wdata_o)
+		.whilo_o(mem_whilo_o),
+		.hi_o(mem_hi_o),
+		.lo_o(mem_lo_o)
 	);
 
 	// MEM/WB 模块例化
-	mem_wb mem_wb (
-		.rst(rst),
+	mem_wb mem_wb0 (
 		.clk(clk),
+		.rst(rst),
+
+		// 从 MEM 输入
 		.mem_waddr(mem_waddr_o),
 		.mem_we(mem_we_o),
 		.mem_wdata(mem_wdata_o),
+		.mem_whilo(mem_whilo_o),
+		.mem_hi(mem_hi_o),
+		.mem_lo(mem_lo_o),
 
+		// 输出给 RegFile
 		.wb_waddr(wb_waddr_i),
 		.wb_we(wb_we_i),
-		.wb_wdata(wb_wdata_i)
+		.wb_wdata(wb_wdata_i),
+
+		// 输出给 hilo_reg
+		.wb_whilo(hilo_whilo_i),
+		.wb_hi(hilo_hi_i),
+		.wb_lo(hilo_lo_i)
+	);
+
+	// hilo_reg 模块例化
+	hilo_reg hilo_reg0 (
+		.clk(rst),
+		.rst(clk),
+
+		// 从 MEM/WB 输入
+		.we(hilo_whilo_i),
+		.hi_i(hilo_hi_i),
+		.lo_i(hilo_lo_i),
+
+		// 输出给 EX
+		.hi_o(hilo_hi_o),
+		.lo_o(hilo_lo_o)
 	);
 
 endmodule

@@ -187,6 +187,65 @@ module id (
 								reg1_re_o <= `ReadEnable;
 								reg2_re_o <= `ReadEnable;
 							end
+							`EXE_SPC_MOVZ: begin
+								alusel_o <= `EXE_RES_MOVE;
+								aluop_o <= `EXE_OP_MOVE_MOVZ;
+								instvalid <= `InstValid;
+								if (reg2_o == `ZeroWord) begin
+									we_o <= `WriteEnable;
+								end
+								else begin
+									we_o <= `WriteDisable;
+								end
+								reg1_re_o <= `ReadEnable; // 两个寄存器写使能之后会默认读取 rs 和 rt
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_MOVN: begin
+								alusel_o <= `EXE_RES_MOVE;
+								aluop_o <= `EXE_OP_MOVE_MOVN;
+								instvalid <= `InstValid;
+								if (reg2_o != `ZeroWord) begin
+									we_o <= `WriteEnable;
+								end
+								else begin
+									we_o <= `WriteDisable;
+								end
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+
+							`EXE_SPC_MFHI: begin
+								alusel_o <= `EXE_RES_MOVE;
+								aluop_o <= `EXE_OP_MOVE_MFHI;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadDisable;
+								reg2_re_o <= `ReadDisable;
+							end
+							`EXE_SPC_MTHI: begin
+								// alusel_o <= `EXE_RES_MOVE;
+								aluop_o <= `EXE_OP_OTHER_MTHI;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadDisable;
+							end
+							`EXE_SPC_MFLO: begin
+								alusel_o <= `EXE_RES_MOVE;
+								aluop_o <= `EXE_OP_MOVE_MFLO;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadDisable;
+								reg2_re_o <= `ReadDisable;
+							end
+							`EXE_SPC_MTLO: begin
+								// alusel_o <= `EXE_RES_MOVE;
+								aluop_o <= `EXE_OP_OTHER_MTLO;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadDisable;
+							end
 							default: begin
 							end
 						endcase

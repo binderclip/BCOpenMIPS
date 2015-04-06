@@ -1,6 +1,7 @@
 `include "defines.v"
 
 module ex (
+	// 从 ID 输出
 	input wire 				rst,
 	input wire[`AluOpBus]	aluop_i,
 	input wire[`AluSelBus]	alusel_i,
@@ -8,46 +9,56 @@ module ex (
 	input wire[`RegBus]		reg2_i,
 	input wire[`RegAddrBus]	waddr_i,
 	input wire				we_i,
-
+	// 从 mem 输入
+	input wire				mem_whilo_i,
+	input wire[`RegBus]		mem_hi_i,
+	input wire[`RegBus]		mem_lo_i,
+	// 从 wb 输入
+	input wire				wb_whilo_i,
+	input wire[`RegBus]		wb_hi_i,
+	input wire[`RegBus]		wb_lo_i,
+	// 从 hilo_reg 输入
+	input wire[`RegBus]		hi_i,
+	input wire[`RegBus]		lo_i,
+	
 	// 输出给 MEM
 	output reg[`RegAddrBus]	waddr_o,
 	output reg 				we_o,
 	output reg[`RegBus]		wdata_o,
-
-	// 输出给 ID
-	output reg[`RegAddrBus]	waddr_id_o,
-	output reg 				we_id_o,
-	output reg[`RegBus]		wdata_id_o
+	output reg				whilo_o,
+	output reg[`RegBus]		hi_o,
+	output reg[`RegBus]		lo_o
 );
 
 	// 保存运算结果
-	reg[`RegBus] logicout;
-	reg[`RegBus] shiftout;
+	reg[`RegBus]	logicout;
+	reg[`RegBus] 	shiftout;
+	reg[`RegBus] 	moveout;
+	// 存放输入
+	reg 			hi_i_reg;
+	reg 			lo_i_reg;
 
-	// 根据 alusel_i 指示的运算类型，选择一个运算结果作为最终结果
+	// 选择 HI LO 的输入
 	always @(*) begin
-		waddr_o <= waddr_i;
-		we_o <= we_i;
-
-		waddr_id_o <= waddr_i;
-		we_id_o <= we_i;		
-		case (alusel_i)
-			`EXE_RES_LOGIC: begin
-				wdata_o <= logicout;
-				wdata_id_o <= logicout;
-			end
-			`EXE_RES_SHIFT: begin
-				wdata_o <= shiftout;
-				wdata_id_o <= shiftout;
-			end
-			default: begin
-				wdata_o <= `ZeroWord;
-				wdata_id_o <= `ZeroWord;
-			end
-		endcase 
+		if (rst == `RstEnable) begin
+			hi_i_reg <= `ZeroWord;
+			lo_i_reg <= `ZeroWord;
+		end
+		else if (mem_whilo_i == `WriteEnable) begin
+			hi_i_reg <= mem_hi_i;
+			lo_i_reg <= mem_lo_i;
+		end
+		else if (wb_whilo_i == `WriteEnable) begin
+			hi_i_reg <= wb_hi_i;
+			lo_i_reg <= wb_lo_i;
+		end
+		else begin
+			hi_i_reg <= hi_i;
+			lo_i_reg <= lo_i;
+		end
 	end
 
-	// 根据 aluop_i 指定的类型进行运算
+	// LOGIC
 	always @(*) begin
 		if (rst == `RstEnable) begin
 			logicout <= `ZeroWord;			
@@ -66,15 +77,6 @@ module ex (
 				`EXE_OP_LOGIC_NOR: begin
 					logicout <= ~(reg1_i | reg2_i);
 				end
-				`EXE_OP_SHIFT_SLL: begin
-					logicout <= reg2_i << reg1_i[4:0];
-				end
-				`EXE_OP_SHIFT_SRL: begin
-					logicout <= reg2_i >> reg1_i[4:0];
-				end
-				`EXE_OP_SHIFT_SRA: begin
-					
-				end
 				default: begin
 					logicout <= `ZeroWord;
 				end
@@ -82,6 +84,7 @@ module ex (
 		end
 	end
 
+	// SHIFT
 	always @(*) begin
 		if (rst == `RstEnable) begin
 			shiftout <= `ZeroWord;			
@@ -103,6 +106,79 @@ module ex (
 				end
 			endcase
 		end
+	end
+
+	// MOVE
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			moveout <= `ZeroWord;
+		end
+		else begin
+			case (aluop_i)
+				`EXE_OP_MOVE_MOVZ: begin
+					moveout <= reg1_i;
+				end
+				`EXE_OP_MOVE_MOVN: begin
+					moveout <= reg1_i;
+				end
+				`EXE_OP_MOVE_MFHI: begin
+					moveout <= hi_i_reg;
+				end
+				`EXE_OP_MOVE_MFLO: begin
+					moveout <= lo_i_reg;
+				end
+				default: begin
+					moveout <= `ZeroWord;
+				end
+			endcase
+		end
+	end
+
+	// OTHER
+	always @(*) begin
+		if (rst) begin
+			hi_o <= `ZeroWord;
+			lo_o <= `ZeroWord;
+		end
+		else begin
+			case (aluop_i)
+				`EXE_OP_OTHER_MTHI: begin
+					whilo_o <= `WriteEnable;
+					hi_o <= reg1_i;
+					lo_o <= lo_i_reg;
+				end
+				`EXE_OP_OTHER_MTLO: begin
+					whilo_o <= `WriteEnable;
+					hi_o <= hi_i_reg;
+					lo_o <= reg1_i;
+				end
+				default: begin
+					whilo_o <= `WriteDisable;
+					hi_o <= hi_i_reg;
+					lo_o <= lo_i_reg;
+				end
+			endcase
+		end
+	end
+
+	// 根据 alusel_i 指示的运算类型，选择一个运算结果作为最终结果
+	always @(*) begin
+		waddr_o <= waddr_i;
+		we_o <= we_i;
+		case (alusel_i)
+			`EXE_RES_LOGIC: begin
+				wdata_o <= logicout;
+			end
+			`EXE_RES_SHIFT: begin
+				wdata_o <= shiftout;
+			end
+			`EXE_RES_MOVE: begin
+				wdata_o <= moveout;
+			end
+			default: begin
+				wdata_o <= `ZeroWord;
+			end
+		endcase 
 	end
 
 endmodule
