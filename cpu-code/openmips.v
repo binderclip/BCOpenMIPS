@@ -276,8 +276,8 @@ module openmips (
 
 	// hilo_reg 模块例化
 	hilo_reg hilo_reg0 (
-		.clk(rst),
-		.rst(clk),
+		.clk(clk),
+		.rst(rst),
 
 		// 从 MEM/WB 输入
 		.we(hilo_whilo_i),

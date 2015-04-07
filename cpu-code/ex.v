@@ -35,8 +35,8 @@ module ex (
 	reg[`RegBus] 	shiftout;
 	reg[`RegBus] 	moveout;
 	// 存放输入
-	reg 			hi_i_reg;
-	reg 			lo_i_reg;
+	reg[`RegBus]	hi_i_reg;
+	reg[`RegBus]	lo_i_reg;
 
 	// 选择 HI LO 的输入
 	always @(*) begin
