@@ -213,7 +213,6 @@ module id (
 								reg1_re_o <= `ReadEnable;
 								reg2_re_o <= `ReadEnable;
 							end
-
 							`EXE_SPC_MFHI: begin
 								alusel_o <= `EXE_RES_MOVE;
 								aluop_o <= `EXE_OP_MOVE_MFHI;
@@ -246,10 +245,114 @@ module id (
 								reg1_re_o <= `ReadEnable;
 								reg2_re_o <= `ReadDisable;
 							end
+							`EXE_SPC_MULT: begin
+								// alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_MULT;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_MULTU: begin
+								// alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_MULTU;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_ADD: begin
+								alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_ADD;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_ADDU: begin
+								alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_ADDU;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_SUB: begin
+								alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_SUB;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_SUBU: begin
+								alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_SUBU;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_SLT: begin
+								alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_SLT;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_SLTU: begin
+								alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_SLTU;
+								instvalid <= `InstValid;
+								we_o <= `WriteEnable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
 							default: begin
 							end
 						endcase
 					end
+				end
+				`EXE_ADDI: begin
+					alusel_o <= `EXE_RES_MATH;
+					aluop_o <= `EXE_OP_MATH_ADD;
+					instvalid <= `InstValid;
+					we_o <= `WriteEnable;
+					waddr_o <= r_read2_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+					imm <= {{16{i_imm[15]}}, i_imm};
+				end
+				`EXE_ADDIU: begin
+					alusel_o <= `EXE_RES_MATH;
+					aluop_o <= `EXE_OP_MATH_ADDU;
+					instvalid <= `InstValid;
+					we_o <= `WriteEnable;
+					waddr_o <= r_read2_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+					imm <= {{16{i_imm[15]}}, i_imm};
+				end
+				`EXE_SLTI: begin
+					alusel_o <= `EXE_RES_MATH;
+					aluop_o <= `EXE_OP_MATH_SLT;
+					instvalid <= `InstValid;
+					we_o <= `WriteEnable;
+					waddr_o <= r_read2_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+					imm <= {{16{i_imm[15]}}, i_imm};
+				end
+				`EXE_SLTIU: begin
+					alusel_o <= `EXE_RES_MATH;
+					aluop_o <= `EXE_OP_MATH_SLTU;
+					instvalid <= `InstValid;
+					we_o <= `WriteEnable;
+					waddr_o <= r_read2_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+					imm <= {{16{i_imm[15]}}, i_imm};
 				end
 				`EXE_ANDI: begin
 					alusel_o <= `EXE_RES_LOGIC;
@@ -281,16 +384,6 @@ module id (
 					reg2_re_o <= `ReadDisable;
 					imm <= {16'h0, i_imm};
 				end
-				// `EXE_NORI: begin
-				// 	alusel_o <= `EXE_RES_LOGIC;
-				// 	aluop_o <= `EXE_OP_LOGIC_NOR;
-				// 	instvalid <= `InstValid;					
-				// 	we_o <= `WriteEnable;
-				// 	waddr_o <= i_write_address;
-				// 	reg1_re_o <= `ReadEnable;
-				// 	reg2_re_o <= `ReadDisable;
-				// 	imm <= {16'h0, i_imm};
-				// end
 				`EXE_LUI: begin
 					alusel_o <= `EXE_RES_LOGIC;
 					aluop_o <= `EXE_OP_LOGIC_OR;
@@ -300,6 +393,34 @@ module id (
 					reg1_re_o <= `ReadEnable;
 					reg2_re_o <= `ReadDisable;
 					imm <= {i_imm, 16'h0};
+				end
+				`EXE_SPECIAL: begin
+					case op_subclass:
+						`EXE_SPC2_MUL: begin
+							alusel_o <= `EXE_RES_MUL;
+							aluop_o <= `EXE_OP_MUL_MUL;
+							instvalid <= `InstValid;
+							we_o <= `WriteEnable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+						end
+						`EXE_SPC2_CLZ: begin
+							alusel_o <= `EXE_RES_MATH;
+							aluop_o <= `EXE_OP_MATH_CLZ;
+							instvalid <= `InstValid;
+							we_o <= `WriteEnable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+						end
+						`EXE_SPC2_CLO: begin
+							alusel_o <= `EXE_RES_MATH;
+							aluop_o <= `EXE_OP_MATH_CLO;
+							instvalid <= `InstValid;
+							we_o <= `WriteEnable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+						end
+					endcase
 				end
 				`EXE_PREF: begin
 					// 不存在 cache，此命令暂时当做 NOP 处理

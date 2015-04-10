@@ -134,6 +134,30 @@ module ex (
 		end
 	end
 
+	// MATH
+	// (1) 如果是减法或者大小比较，就把数字换成它的负数形式？用补码来表示。
+	assign reg2_i_mux = ((aluop_i == `EXE_OP_MATH_SUB) ||
+						 (aluop_i == `EXE_OP_MATH_SUBU) ||
+						 (aluop_i == `EXE_OP_MATH_SLT)) ?
+						 (~reg2_i) + 1 : reg2_i;
+
+	// (2) 加法就是加法，减法就是减法，比较运算用减法
+	assign result_sum = reg1_i + reg2_i_mux;
+
+	// (3) 判断是不是溢出
+	// 1. 正 + 正变负
+	// 2. 负 + 负变正
+	assign overflow_sum = ((!reg1_i[31] && !reg2_i_mux[31]) && result_sum[31]) ||
+						  ((reg1_i[31] && reg2_i_mux[31]) && !result_sum[31]);
+	// (4) 计算操作数 1 是不是小于操作数 2
+	// 有符号时又几种情况
+	// 1. o1 > 0, o2 < 0, o1 > o2
+	// 2. o1 > 0, o2 > 0, sum < 0
+	// 3. o1 < 0, o2 < 0, sum < 0
+	// 无符号时直接比较大小
+	
+
+
 	// OTHER
 	always @(*) begin
 		if (rst) begin

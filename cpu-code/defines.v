@@ -24,12 +24,18 @@
 `define ChipDisable 1'b0
 
 // 指令的大类和立即数指令的类型
-`define EXE_SPECIAL		6'b000000
+`define EXE_SPECIAL		6'b000000		// SPECIAL
+`define EXE_ADDI 		6'b001000		// ADD
+`define EXE_ADDIU 		6'b001001		// ADDU
+`define EXE_SLTI 		6'b001010		// SLT
+`define EXE_SLTIU 		6'b001011		// SLTU
 `define EXE_ANDI 		6'b001100		// AND
 `define EXE_ORI 		6'b001101		// OR
 `define EXE_XORI 		6'b001110		// OR
 `define EXE_LUI 		6'b001111		// OR
+`define EXE_SPECIAL2	6'b011100		// SPECIAL2
 `define EXE_PREF		6'b110011		// NOP
+
 
 // EXE_SPECIAL 寄存器型指令的子类型
 // 移位操作
@@ -46,21 +52,38 @@
 `define EXE_SPC_MTHI	6'b010001
 `define EXE_SPC_MFLO	6'b010010
 `define EXE_SPC_MTLO	6'b010011
+// 算数运算
+`define EXE_SPC_MULT	6'b011000
+`define EXE_SPC_MULTU	6'b011001
+`define EXE_SPC_ADD		6'b100000
+`define EXE_SPC_ADDU	6'b100001
+`define EXE_SPC_SUB		6'b100010
+`define EXE_SPC_SUBU	6'b100011
+`define EXE_SPC_SLT		6'b101010
+`define EXE_SPC_SLTU	6'b101011
 // 逻辑运算
 `define EXE_SPC_AND 	6'b100100
 `define EXE_SPC_OR 		6'b100101
 `define EXE_SPC_XOR 	6'b100110
 `define EXE_SPC_NOR		6'b100111
+
 // 其他运算（可以被当做移位操作来处理）
 `define EXE_SPC_NOP		6'b000000
 `define EXE_SPC_SSNOP	6'b000000
 `define EXE_SPC_SYNC	6'b001111
+
+// EXE_SPECIAL2 寄存器型指令的子类型
+`define EXE_SPC2_MUL	6'b000010
+`define EXE_SPC2_CLZ	6'b100000
+`define EXE_SPC2_CLO	6'b100001
 
 // AluSel
 `define EXE_RES_NOP		3'b000
 `define EXE_RES_LOGIC 	3'b001
 `define EXE_RES_SHIFT	3'b010
 `define EXE_RES_MOVE	3'b011
+`define EXE_RES_MATH	3'b100
+`define EXE_RES_MUL		3'b100
 
 // AluOp
 `define EXE_OP_NOP_NOP 		8'b00000000
@@ -79,8 +102,21 @@
 `define EXE_OP_MOVE_MFHI	8'b00001010
 `define EXE_OP_MOVE_MFLO	8'b00001011
 
-`define EXE_OP_OTHER_MTHI	8'b00001100
-`define EXE_OP_OTHER_MTLO	8'b00001101
+`define EXE_OP_MATH_ADD		8'b00010000
+`define EXE_OP_MATH_ADDU	8'b00010001
+`define EXE_OP_MATH_SUB		8'b00010010
+`define EXE_OP_MATH_SUBU	8'b00010100
+`define EXE_OP_MATH_SLT		8'b00010101
+`define EXE_OP_MATH_SLTU	8'b00010110
+`define EXE_OP_MATH_CLO		8'b00010111
+`define EXE_OP_MATH_CLZ		8'b00011000
+
+`define EXE_OP_MATH_MULTU	8'b00011001
+`define EXE_OP_MATH_MULT	8'b00011010
+`define EXE_OP_MUL_MUL		8'b00011011
+
+`define EXE_OP_OTHER_MTHI	8'b10001100
+`define EXE_OP_OTHER_MTLO	8'b10001101
 
 // 与指令存储器 ROM 相关的指令
 `define InstAddrBus 31:0
