@@ -394,15 +394,15 @@ module id (
 					reg2_re_o <= `ReadDisable;
 					imm <= {i_imm, 16'h0};
 				end
-				`EXE_SPECIAL: begin
-					case op_subclass:
+				`EXE_SPECIAL2: begin
+					case (op_subclass)
 						`EXE_SPC2_MUL: begin
 							alusel_o <= `EXE_RES_MUL;
-							aluop_o <= `EXE_OP_MUL_MUL;
+							aluop_o <= `EXE_OP_MATH_MUL;
 							instvalid <= `InstValid;
 							we_o <= `WriteEnable;
 							reg1_re_o <= `ReadEnable;
-							reg2_re_o <= `ReadDisable;
+							reg2_re_o <= `ReadEnable;
 						end
 						`EXE_SPC2_CLZ: begin
 							alusel_o <= `EXE_RES_MATH;

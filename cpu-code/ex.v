@@ -20,7 +20,7 @@ module ex (
 	// 从 hilo_reg 输入
 	input wire[`RegBus]		hi_i,
 	input wire[`RegBus]		lo_i,
-	
+
 	// 输出给 MEM
 	output reg[`RegAddrBus]	waddr_o,
 	output reg 				we_o,
@@ -31,13 +31,27 @@ module ex (
 );
 
 	// 保存运算结果
-	reg[`RegBus]	logicout;
-	reg[`RegBus] 	shiftout;
-	reg[`RegBus] 	moveout;
-	// 存放输入
-	reg[`RegBus]	hi_i_reg;
-	reg[`RegBus]	lo_i_reg;
+	reg[`RegBus]		logicout;
+	reg[`RegBus] 		shiftout;
+	reg[`RegBus] 		moveout;
+	reg[`RegBus]		mathout;
+	reg[`DoubleRegBus]	mulout;
 
+	// 存放输入
+	reg[`RegBus]		hi_i_reg;
+	reg[`RegBus]		lo_i_reg;
+
+	// 算数运算的中间变量
+	wire 				overflow_sum;
+	// wire 				reg1_eq_reg2;
+	wire 				reg1_lt_reg2;
+	wire[`RegBus]		reg2_i_mux;
+	wire[`RegBus]		reg1_i_not;
+	wire[`RegBus]		result_sum;
+	wire[`RegBus]		opdata1_mult;
+	wire[`RegBus]		opdata2_mult;
+	wire[`DoubleRegBus]	hilo_temp;
+	
 	// 选择 HI LO 的输入
 	always @(*) begin
 		if (rst == `RstEnable) begin
@@ -61,7 +75,7 @@ module ex (
 	// LOGIC
 	always @(*) begin
 		if (rst == `RstEnable) begin
-			logicout <= `ZeroWord;			
+			logicout <= `ZeroWord;
 		end
 		else begin
 			case (aluop_i)
@@ -87,7 +101,7 @@ module ex (
 	// SHIFT
 	always @(*) begin
 		if (rst == `RstEnable) begin
-			shiftout <= `ZeroWord;			
+			shiftout <= `ZeroWord;
 		end
 		else begin
 			case (aluop_i)
@@ -135,6 +149,7 @@ module ex (
 	end
 
 	// MATH
+	// --- 第一段：计算以下 5 个变量的值 ---
 	// (1) 如果是减法或者大小比较，就把数字换成它的负数形式？用补码来表示。
 	assign reg2_i_mux = ((aluop_i == `EXE_OP_MATH_SUB) ||
 						 (aluop_i == `EXE_OP_MATH_SUBU) ||
@@ -151,16 +166,136 @@ module ex (
 						  ((reg1_i[31] && reg2_i_mux[31]) && !result_sum[31]);
 	// (4) 计算操作数 1 是不是小于操作数 2
 	// 有符号时又几种情况
-	// 1. o1 > 0, o2 < 0, o1 > o2
-	// 2. o1 > 0, o2 > 0, sum < 0
-	// 3. o1 < 0, o2 < 0, sum < 0
+	// 1. o1 < 0, o2 > 0
+	// 2. o1 > 0, o2 > 0, sub < 0
+	// 3. o1 < 0, o2 < 0, sub < 0
 	// 无符号时直接比较大小
-	
+	assign reg1_lt_reg2 = ((aluop_i == `EXE_OP_MATH_SLT)) ? ((reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31])) : (reg1_i < reg2_i);
 
+	// (5) 对操作数 1 逐位取反，赋给 reg1_i_not
+	assign reg1_i_not = ~reg1_i;
+
+	// --- 第二段：对不同的算数运算进行赋值 ---
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			mathout <= `ZeroWord;
+		end else begin
+			case (aluop_i)
+				`EXE_OP_MATH_ADD, `EXE_OP_MATH_ADDU, `EXE_OP_MATH_ADDI, `EXE_OP_MATH_ADDIU: begin
+					mathout <= result_sum;
+				end
+				`EXE_OP_MATH_SUB, `EXE_OP_MATH_SUBU: begin
+					mathout <= result_sum;
+				end
+				`EXE_OP_MATH_SLT, `EXE_OP_MATH_SLTU: begin
+					mathout <= reg1_lt_reg2;
+				end
+				`EXE_OP_MATH_CLO: begin
+					mathout <= reg1_i_not[31] ? 0 :
+							   reg1_i_not[30] ? 1 :
+							   reg1_i_not[29] ? 2 :
+							   reg1_i_not[28] ? 3 :
+							   reg1_i_not[27] ? 4 :
+							   reg1_i_not[26] ? 5 :
+							   reg1_i_not[25] ? 6 :
+							   reg1_i_not[24] ? 7 :
+							   reg1_i_not[23] ? 8 :
+							   reg1_i_not[22] ? 9 :
+							   reg1_i_not[21] ? 10 :
+							   reg1_i_not[20] ? 11 :
+							   reg1_i_not[19] ? 12 :
+							   reg1_i_not[18] ? 13 :
+							   reg1_i_not[17] ? 14 :
+							   reg1_i_not[16] ? 15 :
+							   reg1_i_not[15] ? 16 :
+							   reg1_i_not[14] ? 17 :
+							   reg1_i_not[13] ? 18 :
+							   reg1_i_not[12] ? 19 :
+							   reg1_i_not[11] ? 20 :
+							   reg1_i_not[10] ? 21 :
+							   reg1_i_not[9] ? 22 :
+							   reg1_i_not[8] ? 23 :
+							   reg1_i_not[7] ? 24 :
+							   reg1_i_not[6] ? 25 :
+							   reg1_i_not[5] ? 26 :
+							   reg1_i_not[4] ? 27 :
+							   reg1_i_not[3] ? 28 :
+							   reg1_i_not[2] ? 29 :
+							   reg1_i_not[1] ? 30 :
+							   reg1_i_not[0] ? 31 : 32;
+				end
+				`EXE_OP_MATH_CLZ: begin
+					mathout <= reg1_i[31] ? 0 :
+							   reg1_i[30] ? 1 :
+							   reg1_i[29] ? 2 :
+							   reg1_i[28] ? 3 :
+							   reg1_i[27] ? 4 :
+							   reg1_i[26] ? 5 :
+							   reg1_i[25] ? 6 :
+							   reg1_i[24] ? 7 :
+							   reg1_i[23] ? 8 :
+							   reg1_i[22] ? 9 :
+							   reg1_i[21] ? 10 :
+							   reg1_i[20] ? 11 :
+							   reg1_i[19] ? 12 :
+							   reg1_i[18] ? 13 :
+							   reg1_i[17] ? 14 :
+							   reg1_i[16] ? 15 :
+							   reg1_i[15] ? 16 :
+							   reg1_i[14] ? 17 :
+							   reg1_i[13] ? 18 :
+							   reg1_i[12] ? 19 :
+							   reg1_i[11] ? 20 :
+							   reg1_i[10] ? 21 :
+							   reg1_i[9] ? 22 :
+							   reg1_i[8] ? 23 :
+							   reg1_i[7] ? 24 :
+							   reg1_i[6] ? 25 :
+							   reg1_i[5] ? 26 :
+							   reg1_i[4] ? 27 :
+							   reg1_i[3] ? 28 :
+							   reg1_i[2] ? 29 :
+							   reg1_i[1] ? 30 :
+							   reg1_i[0] ? 31 : 32;
+				end
+				default: begin
+					mathout <= `ZeroWord;
+				end
+			endcase
+		end
+	end
+
+	// --- 第三段：进行乘法运算 ---
+	// (1) 取得乘法运算的被乘数，如果是有符号乘法且被乘数是负数，那么取补码
+	assign opdata1_mult = (((aluop_i == `EXE_OP_MATH_MUL) || (aluop_i == `EXE_OP_MATH_MULT)) && (reg1_i[31] == 1'b1)) ? (~reg1_i + 1) : reg1_i;
+	// (2) 取得乘法运算的乘数，如果是有符号乘法且被乘数是负数，那么取补码
+	assign opdata2_mult = (((aluop_i == `EXE_OP_MATH_MUL) || (aluop_i == `EXE_OP_MATH_MULT)) && (reg2_i[31] == 1'b1)) ? (~reg2_i + 1) : reg2_i;
+	// (3) 得到临时乘法结果，保存在变量 hilo_temp 中
+	assign hilo_temp = opdata1_mult * opdata2_mult;
+	// (4) 修正临时乘法结果的符号
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			mulout <= {`ZeroWord, `ZeroWord};
+		end
+		else begin
+			if ((aluop_i == `EXE_OP_MATH_MULT) || (aluop_i == `EXE_OP_MATH_MUL)) begin
+				if (reg1_i[31] ^ reg2_i[31] == 1'b1) begin
+					mulout <= ~hilo_temp + 1;
+				end
+				else begin
+					mulout <= hilo_temp;
+				end
+			end
+			else begin
+				mulout <= hilo_temp;
+			end
+		end
+	end
 
 	// OTHER
 	always @(*) begin
-		if (rst) begin
+		if (rst == `RstEnable) begin
+			whilo_o <= `WriteDisable;
 			hi_o <= `ZeroWord;
 			lo_o <= `ZeroWord;
 		end
@@ -175,6 +310,16 @@ module ex (
 					whilo_o <= `WriteEnable;
 					hi_o <= hi_i_reg;
 					lo_o <= reg1_i;
+				end
+				`EXE_OP_MATH_MULT: begin
+					whilo_o <= `WriteEnable;
+					hi_o <= mulout[63:32];
+					lo_o <= mulout[31:0];
+				end
+				`EXE_OP_MATH_MULTU: begin
+					whilo_o <= `WriteEnable;
+					hi_o <= mulout[63:32];
+					lo_o <= mulout[31:0];
 				end
 				default: begin
 					whilo_o <= `WriteDisable;
@@ -199,10 +344,16 @@ module ex (
 			`EXE_RES_MOVE: begin
 				wdata_o <= moveout;
 			end
+			`EXE_RES_MATH: begin
+				wdata_o <= mathout;
+			end
+			`EXE_RES_MUL: begin
+				wdata_o <= mulout[31:0];
+			end
 			default: begin
 				wdata_o <= `ZeroWord;
 			end
-		endcase 
+		endcase
 	end
 
 endmodule

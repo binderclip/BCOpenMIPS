@@ -10,4 +10,6 @@
 	- waddr_o 和 we_o
 - ex
 	- reg1_i & reg2_i 输入
-	- wdata_o wdata_id_o 运算结果
+	- wdata_o 运算结果
+- regfile
+	- 主要会用到前四个寄存器
