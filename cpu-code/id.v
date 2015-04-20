@@ -32,7 +32,9 @@ module id (
 	output reg[`RegBus]			reg2_o,
 
 	output reg[`RegAddrBus] 	waddr_o,		// 写入的寄存器的地址
-	output reg 					we_o			// 是否有需要写入的寄存器
+	output reg 					we_o,			// 是否有需要写入的寄存器
+
+	output reg					stallreq		// 请求流水线中断
 );
 
 	// 取得指令的指令码
@@ -55,6 +57,15 @@ module id (
 	// 保存需要的立即数
 	reg[`RegBus] imm;
 	reg instvalid;
+
+	always @(*) begin
+		if (rst) begin
+			stallreq <= `StallDisable;
+		end
+		else begin
+			stallreq <= `StallDisable;
+		end
+	end
 
 	// 对程序进行译码
 	always @(*) begin
@@ -419,6 +430,38 @@ module id (
 							we_o <= `WriteEnable;
 							reg1_re_o <= `ReadEnable;
 							reg2_re_o <= `ReadDisable;
+						end
+						`EXE_SPC2_MADD: begin
+							alusel_o <= `EXE_RES_MUL;
+							aluop_o <= `EXE_OP_MATH_MADD;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+						`EXE_SPC2_MADDU: begin
+							alusel_o <= `EXE_RES_MUL;
+							aluop_o <= `EXE_OP_MATH_MADDU;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+						`EXE_SPC2_MSUB: begin
+							alusel_o <= `EXE_RES_MUL;
+							aluop_o <= `EXE_OP_MATH_MSUB;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+						`EXE_SPC2_MSUBU: begin
+							alusel_o <= `EXE_RES_MUL;
+							aluop_o <= `EXE_OP_MATH_MSUBU;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
 						end
 					endcase
 				end

@@ -10,8 +10,6 @@
 `define AluSelBus 2:0				// 译码阶段 alusel_o 的宽度
 `define InstValid 1'b0				// 指令有效
 `define InstInvalid 1'b1			// 指令无效
-`define Stop 1'b1
-`define NoStop 1'b0
 `define InDelaySlot 1'b1
 `define NotInDelaySlot 1'b0
 `define Branch 1'b1
@@ -22,6 +20,13 @@
 `define TrapNotAssert 1'b0
 `define ChipEnable 1'b1
 `define ChipDisable 1'b0
+
+// 流水线暂停
+`define StallEnable 1'b1
+`define StallDisable 1'b0
+`define StallNone 6'b000000
+`define StallFromID 6'b000111
+`define StallFromEX 6'b001111
 
 // 指令的大类和立即数指令的类型
 `define EXE_SPECIAL		6'b000000		// SPECIAL
@@ -72,7 +77,11 @@
 `define EXE_SPC_SYNC	6'b001111
 
 // EXE_SPECIAL2 寄存器型指令的子类型
+`define EXE_SPC2_MADD	6'b000000
+`define EXE_SPC2_MADDU	6'b000001
 `define EXE_SPC2_MUL	6'b000010
+`define EXE_SPC2_MSUB	6'b000100
+`define EXE_SPC2_MSUBU	6'b000101
 `define EXE_SPC2_CLZ	6'b100000
 `define EXE_SPC2_CLO	6'b100001
 
@@ -115,6 +124,10 @@
 `define EXE_OP_MATH_MULTU	8'b00011010
 `define EXE_OP_MATH_MULT	8'b00011011
 `define EXE_OP_MATH_MUL		8'b00011100
+`define EXE_OP_MATH_MADD 	8'b00011101
+`define EXE_OP_MATH_MADDU 	8'b00011110
+`define EXE_OP_MATH_MSUB 	8'b00011111
+`define EXE_OP_MATH_MSUBU 	8'b00100000
 
 `define EXE_OP_OTHER_MTHI	8'b10001100
 `define EXE_OP_OTHER_MTLO	8'b10001101

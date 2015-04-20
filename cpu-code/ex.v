@@ -2,32 +2,38 @@
 
 module ex (
 	// 从 ID 输出
-	input wire 				rst,
-	input wire[`AluOpBus]	aluop_i,
-	input wire[`AluSelBus]	alusel_i,
-	input wire[`RegBus]		reg1_i,
-	input wire[`RegBus]		reg2_i,
-	input wire[`RegAddrBus]	waddr_i,
-	input wire				we_i,
+	input wire 					rst,
+	input wire[`AluOpBus]		aluop_i,
+	input wire[`AluSelBus]		alusel_i,
+	input wire[`RegBus]			reg1_i,
+	input wire[`RegBus]			reg2_i,
+	input wire[`RegAddrBus]		waddr_i,
+	input wire					we_i,
 	// 从 mem 输入
-	input wire				mem_whilo_i,
-	input wire[`RegBus]		mem_hi_i,
-	input wire[`RegBus]		mem_lo_i,
+	input wire					mem_whilo_i,
+	input wire[`RegBus]			mem_hi_i,
+	input wire[`RegBus]			mem_lo_i,
 	// 从 wb 输入
-	input wire				wb_whilo_i,
-	input wire[`RegBus]		wb_hi_i,
-	input wire[`RegBus]		wb_lo_i,
+	input wire					wb_whilo_i,
+	input wire[`RegBus]			wb_hi_i,
+	input wire[`RegBus]			wb_lo_i,
 	// 从 hilo_reg 输入
-	input wire[`RegBus]		hi_i,
-	input wire[`RegBus]		lo_i,
-
-	// 输出给 MEM
-	output reg[`RegAddrBus]	waddr_o,
-	output reg 				we_o,
-	output reg[`RegBus]		wdata_o,
-	output reg				whilo_o,
-	output reg[`RegBus]		hi_o,
-	output reg[`RegBus]		lo_o
+	input wire[`RegBus]			hi_i,
+	input wire[`RegBus]			lo_i,
+	// 从 EX/MEM 输入
+	input wire[`DoubleRegBus]	hilo_temp_i,
+	input wire[1:0]				cnt_i,
+	// 输出给 EX/MEM
+	output reg[`RegAddrBus]		waddr_o,
+	output reg 					we_o,
+	output reg[`RegBus]			wdata_o,
+	output reg					whilo_o,
+	output reg[`RegBus]			hi_o,
+	output reg[`RegBus]			lo_o,
+	output reg[`DoubleRegBus]	hilo_temp_o,
+	output reg[1:0]				cnt_o,
+	// 输出给 ctrl
+	output reg 					stallreq
 );
 
 	// 保存运算结果
@@ -51,7 +57,11 @@ module ex (
 	wire[`RegBus]		opdata1_mult;
 	wire[`RegBus]		opdata2_mult;
 	wire[`DoubleRegBus]	hilo_temp;
-	
+	// stall
+	reg stallreq_for_madd_msub;
+	reg stallreq_for_div;
+	reg[`DoubleRegBus]	hilo_temp_stall;
+
 	// 选择 HI LO 的输入
 	always @(*) begin
 		if (rst == `RstEnable) begin
@@ -170,7 +180,7 @@ module ex (
 	// 2. o1 > 0, o2 > 0, sub < 0
 	// 3. o1 < 0, o2 < 0, sub < 0
 	// 无符号时直接比较大小
-	assign reg1_lt_reg2 = ((aluop_i == `EXE_OP_MATH_SLT)) ? ((reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31])) : (reg1_i < reg2_i);
+	assign reg1_lt_reg2 = (aluop_i == `EXE_OP_MATH_SLT) ? ((reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31])) : (reg1_i < reg2_i);
 
 	// (5) 对操作数 1 逐位取反，赋给 reg1_i_not
 	assign reg1_i_not = ~reg1_i;
@@ -267,9 +277,15 @@ module ex (
 
 	// --- 第三段：进行乘法运算 ---
 	// (1) 取得乘法运算的被乘数，如果是有符号乘法且被乘数是负数，那么取补码
-	assign opdata1_mult = (((aluop_i == `EXE_OP_MATH_MUL) || (aluop_i == `EXE_OP_MATH_MULT)) && (reg1_i[31] == 1'b1)) ? (~reg1_i + 1) : reg1_i;
+	assign opdata1_mult = (((aluop_i == `EXE_OP_MATH_MUL) ||
+						    (aluop_i == `EXE_OP_MATH_MULT) ||
+						    (aluop_i == `EXE_OP_MATH_MADD) ||
+						    (aluop_i == `EXE_OP_MATH_MSUB)) && (reg1_i[31] == 1'b1)) ? (~reg1_i + 1) : reg1_i;
 	// (2) 取得乘法运算的乘数，如果是有符号乘法且被乘数是负数，那么取补码
-	assign opdata2_mult = (((aluop_i == `EXE_OP_MATH_MUL) || (aluop_i == `EXE_OP_MATH_MULT)) && (reg2_i[31] == 1'b1)) ? (~reg2_i + 1) : reg2_i;
+	assign opdata2_mult = (((aluop_i == `EXE_OP_MATH_MUL) ||
+						    (aluop_i == `EXE_OP_MATH_MULT) ||
+						    (aluop_i == `EXE_OP_MATH_MADD) ||
+						    (aluop_i == `EXE_OP_MATH_MSUB)) && (reg2_i[31] == 1'b1)) ? (~reg2_i + 1) : reg2_i;
 	// (3) 得到临时乘法结果，保存在变量 hilo_temp 中
 	assign hilo_temp = opdata1_mult * opdata2_mult;
 	// (4) 修正临时乘法结果的符号
@@ -278,7 +294,7 @@ module ex (
 			mulout <= {`ZeroWord, `ZeroWord};
 		end
 		else begin
-			if ((aluop_i == `EXE_OP_MATH_MULT) || (aluop_i == `EXE_OP_MATH_MUL)) begin
+			if ((aluop_i == `EXE_OP_MATH_MULT) || (aluop_i == `EXE_OP_MATH_MUL) || (aluop_i == `EXE_OP_MATH_MADD) || (aluop_i == `EXE_OP_MATH_MSUB)) begin
 				if (reg1_i[31] ^ reg2_i[31] == 1'b1) begin
 					mulout <= ~hilo_temp + 1;
 				end
@@ -292,7 +308,58 @@ module ex (
 		end
 	end
 
-	// OTHER
+	// MADD, MADDU, MSUB, MSUBU
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			hilo_temp_o <= {`ZeroWord, `ZeroWord};
+			cnt_o <= 2'b00;
+			stallreq_for_madd_msub <= `StallDisable;
+		end
+		else begin
+			case (aluop_i)
+				`EXE_OP_MATH_MADD, `EXE_OP_MATH_MADDU: begin
+					if (cnt_i == 2'b00) begin 		// 第一个时钟周期
+						hilo_temp_o <= mulout;
+						cnt_o <= 2'b01;
+						hilo_temp_stall <= {`ZeroWord, `ZeroWord};
+						stallreq_for_madd_msub <= `StallEnable;
+					end
+					else if (cnt_i == 2'b01) begin 						// 第二个时钟周期
+						hilo_temp_o <= {`ZeroWord, `ZeroWord};
+						cnt_o <= 2'b10;
+						hilo_temp_stall <= hilo_temp_i + {hi_i_reg, lo_i_reg};
+						stallreq_for_madd_msub <= `StallDisable;
+					end
+				end
+				`EXE_OP_MATH_MSUB, `EXE_OP_MATH_MSUBU: begin
+					if (cnt_i == 2'b00) begin
+						hilo_temp_o <= ~mulout + 1;
+						cnt_o <= 2'b01;
+						hilo_temp_stall <= {`ZeroWord, `ZeroWord};
+						stallreq_for_madd_msub <= `StallEnable;
+					end
+					else if (cnt_i == 2'b01) begin
+						hilo_temp_o <= {`ZeroWord, `ZeroWord};
+						cnt_o <= 2'b10;
+						hilo_temp_stall <= hilo_temp_i + {hi_i_reg, lo_i_reg};
+						stallreq_for_madd_msub <= `StallDisable;
+					end
+				end
+				default: begin
+					hilo_temp_o <= {`ZeroWord, `ZeroWord};
+					cnt_o <= 2'b00;
+					stallreq_for_madd_msub <= `StallDisable;		
+				end
+			endcase
+		end
+	end
+
+	always @ (*) begin
+    	//stallreq = stallreq_for_madd_msub || stallreq_for_div;
+    	stallreq = stallreq_for_madd_msub;
+  	end
+
+	// HI LO 输出
 	always @(*) begin
 		if (rst == `RstEnable) begin
 			whilo_o <= `WriteDisable;
@@ -311,15 +378,20 @@ module ex (
 					hi_o <= hi_i_reg;
 					lo_o <= reg1_i;
 				end
-				`EXE_OP_MATH_MULT: begin
+				`EXE_OP_MATH_MULT, `EXE_OP_MATH_MULTU: begin
 					whilo_o <= `WriteEnable;
 					hi_o <= mulout[63:32];
 					lo_o <= mulout[31:0];
 				end
-				`EXE_OP_MATH_MULTU: begin
+				`EXE_OP_MATH_MADD, `EXE_OP_MATH_MADDU: begin
 					whilo_o <= `WriteEnable;
-					hi_o <= mulout[63:32];
-					lo_o <= mulout[31:0];
+					hi_o <= hilo_temp_stall[63:32];
+					lo_o <= hilo_temp_stall[31:0];
+				end
+				`EXE_OP_MATH_MSUB, `EXE_OP_MATH_MSUBU: begin
+					whilo_o <= `WriteEnable;
+					hi_o <= hilo_temp_stall[63:32];
+					lo_o <= hilo_temp_stall[31:0];					
 				end
 				default: begin
 					whilo_o <= `WriteDisable;

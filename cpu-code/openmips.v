@@ -39,7 +39,13 @@ module openmips (
 	wire						ex_whilo_o;
 	wire[`RegBus]				ex_hi_o;
 	wire[`RegBus]				ex_lo_o;
+	wire[`DoubleRegBus]			hilo_temp_ex_o;
+	wire[1:0]					cnt_ex_o;
 
+	// 连接 EX/MEM 的输出与 EX 的输入
+	wire[`DoubleRegBus]			hilo_temp_ex_mem_o;
+	wire[1:0]					cnt_ex_mem_o;
+	
 	// 连接 EX/MEM 的输出与 MEM 的输入
 	wire						mem_rst;
 	wire[`RegAddrBus]			mem_waddr_i;
@@ -79,10 +85,16 @@ module openmips (
 	wire[`RegAddrBus]			reg_raddr2;
 	wire[`RegBus]				reg_rdata2;
 
+	// 链接 ctrl 和其他模块
+	wire[5:0] stall;
+	wire stallreq_from_id;	
+	wire stallreq_from_ex;
+
 	// pc_reg 模块例化
 	pc_reg pc_reg0 (
 		.clk(clk),
 		.rst(rst),
+		.stall(stall),
 		.pc(pc),
 		.ce(rom_ce_o)
 	);
@@ -93,6 +105,7 @@ module openmips (
 	if_id if_id0 (
 		.clk(clk),
 		.rst(rst),
+		.stall(stall),
 		.if_pc(pc),
 		.if_inst(rom_data_i),
 		.id_pc(id_pc_i),
@@ -131,7 +144,9 @@ module openmips (
 		.reg1_o(id_reg1_o),
 		.reg2_o(id_reg2_o),
 		.we_o(id_we_o),
-		.waddr_o(id_waddr_o)
+		.waddr_o(id_waddr_o),
+
+		.stallreq(stallreq_from_id)
 	);
 
 	// Regfile 模块例化
@@ -159,6 +174,7 @@ module openmips (
 	id_ex id_ex0 (
 		.clk(clk),
 		.rst(rst),
+		.stall(stall),
 
 		.id_aluop(id_aluop_o),
 		.id_alusel(id_alusel_o),
@@ -178,7 +194,6 @@ module openmips (
 	// EX 模块例化
 	ex ex0 (
 		.rst(rst),
-
 		// 从 ID_EX 输入
 		.aluop_i(ex_aluop_i),
 		.alusel_i(ex_alusel_i),
@@ -186,47 +201,55 @@ module openmips (
 		.reg2_i(ex_reg2_i),
 		.waddr_i(ex_waddr_i),
 		.we_i(ex_we_i),
-
 		// 从 hilo_reg 输入
 		.hi_i(hilo_hi_o),
 		.lo_i(hilo_lo_o),
-
 		// 从 MEM/WB 输入
 		.wb_whilo_i(hilo_whilo_i),
 		.wb_hi_i(hilo_hi_i),
 		.wb_lo_i(hilo_lo_i),
-
 		// 从 MEM 输入
 		.mem_whilo_i(mem_whilo_o),
 		.mem_hi_i(mem_hi_o),
 		.mem_lo_i(mem_lo_o),
-
+		// 从 EX/MEM 输入
+		.hilo_temp_i(hilo_temp_ex_mem_o),
+		.cnt_i(cnt_ex_mem_o),
 		// 输出给 EX/MEM
 		.waddr_o(ex_waddr_o),
 		.we_o(ex_we_o),
 		.wdata_o(ex_wdata_o),
 		.whilo_o(ex_whilo_o),
 		.hi_o(ex_hi_o),
-		.lo_o(ex_lo_o)
+		.lo_o(ex_lo_o),
+		.hilo_temp_o(hilo_temp_ex_o),
+		.cnt_o(cnt_ex_o),
+		.stallreq(stallreq_from_ex)
 	);
 
 	// EX/MEM 模块例化
 	ex_mem ex_mem0 (
 		.rst(rst),
 		.clk(clk),
+		.stall(stall),
+
 		.ex_waddr(ex_waddr_o),
 		.ex_we(ex_we_o),
 		.ex_wdata(ex_wdata_o),
 		.ex_whilo(ex_whilo_o),
 		.ex_hi(ex_hi_o),
 		.ex_lo(ex_lo_o),
+		.hilo_i(hilo_temp_ex_o),
+		.cnt_i(cnt_ex_o),
 
 		.mem_waddr(mem_waddr_i),
 		.mem_we(mem_we_i),
 		.mem_wdata(mem_wdata_i),
 		.mem_whilo(mem_whilo_i),
 		.mem_hi(mem_hi_i),
-		.mem_lo(mem_lo_i)
+		.mem_lo(mem_lo_i),
+		.hilo_o(hilo_temp_ex_mem_o),
+		.cnt_o(cnt_ex_mem_o)
 	);
 
 	// MEM 模块例化
@@ -254,6 +277,7 @@ module openmips (
 	mem_wb mem_wb0 (
 		.clk(clk),
 		.rst(rst),
+		.stall(stall),
 
 		// 从 MEM 输入
 		.mem_waddr(mem_waddr_o),
@@ -289,4 +313,12 @@ module openmips (
 		.lo_o(hilo_lo_o)
 	);
 
+	ctrl ctrl0(
+		.rst(rst),
+	
+		.stallreq_from_id(stallreq_from_id),
+		.stallreq_from_ex(stallreq_from_ex),
+
+		.stall(stall)       	
+	);
 endmodule
