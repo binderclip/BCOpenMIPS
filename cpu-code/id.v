@@ -320,6 +320,22 @@ module id (
 								reg1_re_o <= `ReadEnable;
 								reg2_re_o <= `ReadEnable;
 							end
+							`EXE_SPC_DIV: begin
+								// alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_DIV;
+								instvalid <= `InstValid;
+								we_o <= `WriteDisable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
+							`EXE_SPC_DIVU: begin
+								// alusel_o <= `EXE_RES_MATH;
+								aluop_o <= `EXE_OP_MATH_DIVU;
+								instvalid <= `InstValid;
+								we_o <= `WriteDisable;
+								reg1_re_o <= `ReadEnable;
+								reg2_re_o <= `ReadEnable;
+							end
 							default: begin
 							end
 						endcase

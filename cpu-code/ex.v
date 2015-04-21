@@ -23,6 +23,9 @@ module ex (
 	// 从 EX/MEM 输入
 	input wire[`DoubleRegBus]	hilo_temp_i,
 	input wire[1:0]				cnt_i,
+	// 从 DIV 输入
+	input wire[`DoubleRegBus]	div_result_i,
+	input wire 					div_result_ready_i,
 	// 输出给 EX/MEM
 	output reg[`RegAddrBus]		waddr_o,
 	output reg 					we_o,
@@ -33,7 +36,12 @@ module ex (
 	output reg[`DoubleRegBus]	hilo_temp_o,
 	output reg[1:0]				cnt_o,
 	// 输出给 ctrl
-	output reg 					stallreq
+	output reg 					stallreq,
+	// 输出给 DIV
+	output reg					signed_div_o,
+	output reg[`RegBus]			div_opdata1_o,		// 被除数
+	output reg[`RegBus]			div_opdata2_o,		// 除数
+	output reg					div_start_o
 );
 
 	// 保存运算结果
@@ -354,9 +362,60 @@ module ex (
 		end
 	end
 
+	// DIV, DIVU
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			stallreq_for_div <= `StallDisable;
+			div_opdata1_o <= `ZeroWord;
+			div_opdata2_o <= `ZeroWord;
+			div_start_o <= `DivNotStart;
+			signed_div_o <= `DivNotSigned;
+		end
+		else begin
+			stallreq_for_div <= `StallDisable;
+			div_opdata1_o <= `ZeroWord;
+			div_opdata2_o <= `ZeroWord;
+			div_start_o <= `DivNotStart;
+			signed_div_o <= `DivNotSigned;
+			case (aluop_i)
+				`EXE_OP_MATH_DIV: begin
+					if (div_result_ready_i <= `DivResultNotReady) begin
+						div_opdata1_o <= reg1_i;		// 被除数
+						div_opdata2_o <= reg2_i;		// 除数
+						div_start_o <= `DivStart;
+						signed_div_o <= `DivSigned;
+						stallreq_for_div <= `StallEnable;
+					end
+					else if (div_result_ready_i <= `DivResultNotReady) begin
+						div_opdata1_o <= reg1_i;
+						div_opdata2_o <= reg2_i;
+						div_start_o <= `DivNotStart;
+						signed_div_o <= `DivSigned;
+						stallreq_for_div <= `StallDisable;
+					end
+				end
+				`EXE_OP_MATH_DIVU: begin
+					if (div_result_ready_i <= `DivResultNotReady) begin
+						div_opdata1_o <= reg1_i;		// 被除数
+						div_opdata2_o <= reg2_i;		// 除数
+						div_start_o <= `DivStart;
+						signed_div_o <= `DivNotSigned;
+						stallreq_for_div <= `StallEnable;
+					end
+					else if (div_result_ready_i <= `DivResultNotReady) begin
+						div_opdata1_o <= reg1_i;
+						div_opdata2_o <= reg2_i;
+						div_start_o <= `DivNotStart;
+						signed_div_o <= `DivNotSigned;
+						stallreq_for_div <= `StallDisable;
+					end
+				end
+			endcase
+		end
+	end
+
 	always @ (*) begin
-    	//stallreq = stallreq_for_madd_msub || stallreq_for_div;
-    	stallreq = stallreq_for_madd_msub;
+    	stallreq = stallreq_for_madd_msub || stallreq_for_div;
   	end
 
 	// HI LO 输出
@@ -392,6 +451,11 @@ module ex (
 					whilo_o <= `WriteEnable;
 					hi_o <= hilo_temp_stall[63:32];
 					lo_o <= hilo_temp_stall[31:0];					
+				end
+				`EXE_OP_MATH_DIV, `EXE_OP_MATH_DIVU: begin
+					whilo_o <= `WriteEnable;
+					hi_o <= div_result_i[63:32];
+					lo_o <= div_result_i[31:0];
 				end
 				default: begin
 					whilo_o <= `WriteDisable;

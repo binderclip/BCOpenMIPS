@@ -42,6 +42,12 @@ module openmips (
 	wire[`DoubleRegBus]			hilo_temp_ex_o;
 	wire[1:0]					cnt_ex_o;
 
+	// 连接 EX 的输出与 DIV 的输入
+	wire						signed_div_o;
+	wire[`RegBus]				div_opdata1_o;		// 被除数
+	wire[`RegBus]				div_opdata2_o;		// 除数
+	wire						div_start_o;
+
 	// 连接 EX/MEM 的输出与 EX 的输入
 	wire[`DoubleRegBus]			hilo_temp_ex_mem_o;
 	wire[1:0]					cnt_ex_mem_o;
@@ -85,10 +91,14 @@ module openmips (
 	wire[`RegAddrBus]			reg_raddr2;
 	wire[`RegBus]				reg_rdata2;
 
-	// 链接 ctrl 和其他模块
+	// 连接 ctrl 和其他模块
 	wire[5:0] stall;
 	wire stallreq_from_id;	
 	wire stallreq_from_ex;
+
+	// 连接 DIV 和 EX 模块
+	wire[`DoubleRegBus]			div_result_o;
+	wire	 					div_result_ready_o;
 
 	// pc_reg 模块例化
 	pc_reg pc_reg0 (
@@ -215,6 +225,9 @@ module openmips (
 		// 从 EX/MEM 输入
 		.hilo_temp_i(hilo_temp_ex_mem_o),
 		.cnt_i(cnt_ex_mem_o),
+		// 从 DIV 输入
+		.div_result_i(div_result_o),
+		.div_result_ready_i(div_result_ready_o),
 		// 输出给 EX/MEM
 		.waddr_o(ex_waddr_o),
 		.we_o(ex_we_o),
@@ -224,7 +237,12 @@ module openmips (
 		.lo_o(ex_lo_o),
 		.hilo_temp_o(hilo_temp_ex_o),
 		.cnt_o(cnt_ex_o),
-		.stallreq(stallreq_from_ex)
+		.stallreq(stallreq_from_ex),
+		// 输出给 DIV
+		.signed_div_o(signed_div_o),
+		.div_opdata1_o(div_opdata1_o),		// 被除数
+		.div_opdata2_o(div_opdata2_o),		// 除数
+		.div_start_o(div_start_o)
 	);
 
 	// EX/MEM 模块例化
@@ -313,7 +331,7 @@ module openmips (
 		.lo_o(hilo_lo_o)
 	);
 
-	ctrl ctrl0(
+	ctrl ctrl0 (
 		.rst(rst),
 	
 		.stallreq_from_id(stallreq_from_id),
@@ -321,4 +339,19 @@ module openmips (
 
 		.stall(stall)       	
 	);
+
+	div div0 (
+		.clk(clk),
+		.rst(rst),
+
+		.signed_div_i(signed_div_o),
+		.opdata1_i(div_opdata1_o),		// 被除数
+		.opdata2_i(div_opdata2_o),		// 除数
+		.start_i(div_start_o),
+		.annul_i(1'b0),
+
+		.result_o(div_result_o),
+		.result_ready_o(div_result_ready_o)
+	);
+
 endmodule

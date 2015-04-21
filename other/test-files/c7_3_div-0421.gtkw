@@ -1,0 +1,75 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Tue Apr 21 06:53:50 2015
+[*]
+[dumpfile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/openmips_min_sopc.vcd"
+[dumpfile_mtime] "Tue Apr 21 06:51:27 2015"
+[dumpfile_size] 38150
+[savefile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/other/test-files/c7_3_div-0421.gtkw"
+[timestart] 1862000
+[size] 1387 852
+[pos] -1 -1
+*-15.000000 2478300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] openmips_min_sopc_tb.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.openmips0.
+[sst_width] 193
+[signals_width] 254
+[sst_expanded] 1
+[sst_vpaned_height] 257
+@200
+-
+-
+-
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.clk
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.inst_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg1_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.reg2_o[31:0]
+@200
+-ID
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.alusel_i[2:0]
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.aluop_i[7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.reg1_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.reg2_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.wdata_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.waddr_o[4:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.we_o
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.hi_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.lo_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.hi_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.lo_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.div_result_i[63:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.stallreq
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.stallreq_for_div
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.ex0.stallreq_for_madd_msub
+@200
+-EX
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.annul_i
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.start_i
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.opdata1_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.opdata2_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.cnt[5:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.state[1:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.result_ready_o
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.result_o[63:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.temp_op1[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.temp_op2[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.dividend[63:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.div_temp[32:0]
+@23
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.divisor[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.div0.rst
+[pattern_trace] 1
+[pattern_trace] 0
