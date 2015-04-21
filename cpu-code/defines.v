@@ -30,6 +30,13 @@
 
 // 指令的大类和立即数指令的类型
 `define EXE_SPECIAL		6'b000000		// SPECIAL
+`define EXE_REGIMM_INST	6'b000001
+`define EXE_J 			6'b000010
+`define EXE_JAL 		6'b000011
+`define EXE_BEQ 		6'b000100
+`define EXE_BNE			6'b000101
+`define EXE_BLEZ		6'b000110
+`define EXE_BGTZ		6'b000111
 `define EXE_ADDI 		6'b001000		// ADD
 `define EXE_ADDIU 		6'b001001		// ADDU
 `define EXE_SLTI 		6'b001010		// SLT
@@ -72,10 +79,13 @@
 `define EXE_SPC_OR 		6'b100101
 `define EXE_SPC_XOR 	6'b100110
 `define EXE_SPC_NOR		6'b100111
-// 其他运算（可以被当做移位操作来处理）
+// 其他操作（可以被当做移位操作来处理）
 `define EXE_SPC_NOP		6'b000000
 `define EXE_SPC_SSNOP	6'b000000
 `define EXE_SPC_SYNC	6'b001111
+// 转移操作
+`define EXE_SPC_JR 		6'b001000
+`define EXE_SPC_JALR	6'b001001
 
 // EXE_SPECIAL2 寄存器型指令的子类型
 `define EXE_SPC2_MADD	6'b000000
@@ -86,13 +96,20 @@
 `define EXE_SPC2_CLZ	6'b100000
 `define EXE_SPC2_CLO	6'b100001
 
+// REGIMM_INST
+`define EXE_REGIMM_BLTZ		5'b00000
+`define EXE_REGIMM_BGEZ		5'b00001
+`define EXE_REGIMM_BLTZAL	5'b10000
+`define EXE_REGIMM_BGEZAL	5'b10001
+
 // AluSel
-`define EXE_RES_NOP		3'b000
-`define EXE_RES_LOGIC 	3'b001
-`define EXE_RES_SHIFT	3'b010
-`define EXE_RES_MOVE	3'b011
-`define EXE_RES_MATH	3'b100
-`define EXE_RES_MUL		3'b101
+`define EXE_RES_NOP			3'b000
+`define EXE_RES_LOGIC 		3'b001
+`define EXE_RES_SHIFT		3'b010
+`define EXE_RES_MOVE		3'b011
+`define EXE_RES_MATH		3'b100
+`define EXE_RES_MUL			3'b101
+`define EXE_RES_JUMP_BRANCH	3'b110
 
 // AluOp
 `define EXE_OP_NOP_NOP 		8'b00000000
@@ -132,8 +149,20 @@
 `define EXE_OP_MATH_DIV 	8'b00100001
 `define EXE_OP_MATH_DIVU 	8'b00100010
 
-`define EXE_OP_OTHER_MTHI	8'b10001100
-`define EXE_OP_OTHER_MTLO	8'b10001101
+`define EXE_OP_JUMP_BRANCH_JR		8'b00100100
+`define EXE_OP_JUMP_BRANCH_JALR		8'b00100101
+`define EXE_OP_JUMP_BRANCH_J		8'b00100110
+`define EXE_OP_JUMP_BRANCH_JAL		8'b00100111
+`define EXE_OP_JUMP_BRANCH_BEQ		8'b00101000
+`define EXE_OP_JUMP_BRANCH_BNE		8'b00101001
+`define EXE_OP_JUMP_BRANCH_BLEZ		8'b00101010
+`define EXE_OP_JUMP_BRANCH_BGTZ		8'b00101011
+`define EXE_OP_JUMP_BRANCH_BLTZ 	8'b00101100
+`define EXE_OP_JUMP_BRANCH_BGEZ 	8'b00101101
+`define EXE_OP_JUMP_BRANCH_BLTZAL 	8'b00101110
+`define EXE_OP_JUMP_BRANCH_BGEZAL 	8'b00101111
+`define EXE_OP_OTHER_MTHI			8'b10001100
+`define EXE_OP_OTHER_MTLO			8'b10001101
 
 // 与指令存储器 ROM 相关的指令
 `define InstAddrBus 		31:0
@@ -164,3 +193,6 @@
 `define DivAnnul 			1'b1
 `define DivNotSigned 		1'b0
 `define DivSigned 			1'b1
+
+// 与跳转有关的宏定义
+`define RegRAAddr			5'b11111

@@ -23,7 +23,12 @@ module openmips (
 	wire[`RegBus]				id_reg2_o;
 	wire[`RegAddrBus]			id_waddr_o;
 	wire						id_we_o;
-
+	wire 						next_inst_in_delayslot_o;
+	wire[`RegBus]				link_addr_o;
+	wire 						is_in_delayslot_o;
+	// ID 到 PC
+	wire 						branch_flag_o;
+	wire[`RegBus]				branch_target_address_o;
 	// 连接 ID/EX 模块输出与执行阶段 EX 模块的输入的变量
 	wire[`AluOpBus]				ex_aluop_i;
 	wire[`AluSelBus]			ex_alusel_i;
@@ -31,6 +36,9 @@ module openmips (
 	wire[`RegBus]				ex_reg2_i;
 	wire[`RegAddrBus]			ex_waddr_i;
 	wire						ex_we_i;
+	wire[`RegBus]				ex_link_address;
+	wire 						ex_is_in_delayslot;
+	wire 						is_delayslot_o;
 
 	// 连接 EX 的输出与 EX/MEM 的输入
 	wire[`RegAddrBus]			ex_waddr_o;
@@ -105,6 +113,8 @@ module openmips (
 		.clk(clk),
 		.rst(rst),
 		.stall(stall),
+		.branch_flag_i(branch_flag_o),
+		.branch_target_address_i(branch_target_address_o),
 		.pc(pc),
 		.ce(rom_ce_o)
 	);
@@ -136,7 +146,7 @@ module openmips (
 		.ex_waddr_i(ex_waddr_o),
 		.ex_we_i(ex_we_o),
 		.ex_wdata_i(ex_wdata_o),
-
+		.is_in_delayslot_i(is_delayslot_o),
 		// 来自 MEM 的输入
 		.mem_waddr_i(mem_waddr_o),
 		.mem_we_i(mem_we_o),
@@ -155,7 +165,13 @@ module openmips (
 		.reg2_o(id_reg2_o),
 		.we_o(id_we_o),
 		.waddr_o(id_waddr_o),
-
+		.next_inst_in_delayslot_o(next_inst_in_delayslot_o),
+		.link_addr_o(link_addr_o),
+		.is_in_delayslot_o(is_in_delayslot_o),
+		// 输出给 PC
+		.branch_flag_o(branch_flag_o),
+		.branch_target_address_o(branch_target_address_o),
+	
 		.stallreq(stallreq_from_id)
 	);
 
@@ -193,12 +209,20 @@ module openmips (
 		.id_waddr(id_waddr_o),
 		.id_we(id_we_o),
 
+		.id_link_address(link_addr_o),
+		.id_is_in_delayslot(is_in_delayslot_o),
+		.next_inst_in_delayslot_i(next_inst_in_delayslot_o),
+
 		.ex_aluop(ex_aluop_i),
 		.ex_alusel(ex_alusel_i),
 		.ex_reg1(ex_reg1_i),
 		.ex_reg2(ex_reg2_i),
 		.ex_waddr(ex_waddr_i),
-		.ex_we(ex_we_i)
+		.ex_we(ex_we_i),
+
+		.ex_link_address(ex_link_address),
+		.ex_is_in_delayslot(ex_is_in_delayslot),
+		.is_delayslot_o(is_delayslot_o)
 	);
 
 	// EX 模块例化
@@ -211,6 +235,8 @@ module openmips (
 		.reg2_i(ex_reg2_i),
 		.waddr_i(ex_waddr_i),
 		.we_i(ex_we_i),
+		.link_address_i(ex_link_address),
+		.is_in_delayslot_i(ex_is_in_delayslot),
 		// 从 hilo_reg 输入
 		.hi_i(hilo_hi_o),
 		.lo_i(hilo_lo_o),

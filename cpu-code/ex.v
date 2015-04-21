@@ -9,6 +9,8 @@ module ex (
 	input wire[`RegBus]			reg2_i,
 	input wire[`RegAddrBus]		waddr_i,
 	input wire					we_i,
+	input wire[`RegBus]			link_address_i,
+	input wire 					is_in_delayslot_i,
 	// 从 mem 输入
 	input wire					mem_whilo_i,
 	input wire[`RegBus]			mem_hi_i,
@@ -485,6 +487,9 @@ module ex (
 			end
 			`EXE_RES_MUL: begin
 				wdata_o <= mulout[31:0];
+			end
+			`EXE_RES_JUMP_BRANCH: begin
+				wdata_o <= link_address_i;
 			end
 			default: begin
 				wdata_o <= `ZeroWord;
