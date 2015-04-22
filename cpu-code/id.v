@@ -452,7 +452,7 @@ module id (
 					we_o <= `WriteDisable;
 					reg1_re_o <= `ReadEnable;
 					reg2_re_o <= `ReadDisable;
-					if ((reg1_o[31] == 1'b1) && (reg1_o != `ZeroWord)) begin
+					if ((reg1_o[31] == 1'b1) || (reg1_o == `ZeroWord)) begin
 						branch_target_address_o <= pc_plus_4 + imm_sll2_signedext;
 						branch_flag_o <= `Branch;
 						next_inst_in_delayslot_o <= `InDelaySlot;
