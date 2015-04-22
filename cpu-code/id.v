@@ -414,7 +414,7 @@ module id (
 					waddr_o <= `RegRAAddr;
 					reg1_re_o <= `ReadDisable;
 					reg2_re_o <= `ReadDisable;
-					link_addr_o <= `ZeroWord;
+					link_addr_o <= pc_plus_8;
 					branch_target_address_o <= {pc_plus_4[31:28], inst_i[25:0], 2'b00};
 					branch_flag_o <= `Branch;
 					next_inst_in_delayslot_o <= `InDelaySlot;

@@ -1,0 +1,34 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Wed Apr 22 04:22:59 2015
+[*]
+[dumpfile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/openmips_min_sopc.vcd"
+[dumpfile_mtime] "Wed Apr 22 04:16:47 2015"
+[dumpfile_size] 83525
+[savefile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/other/test-files/c8_5_jump-0422.gtkw"
+[timestart] 596400
+[size] 1387 855
+[pos] -1 -1
+*-15.000000 1453000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] openmips_min_sopc_tb.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.openmips0.
+[sst_width] 193
+[signals_width] 224
+[sst_expanded] 1
+[sst_vpaned_height] 258
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.pc_reg0.pc[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[31][31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[2][31:0]
+@200
+-
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.inst_i[31:0]
+@23
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[1][31:0]
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.hilo_reg0.hi_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.hilo_reg0.lo_o[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
