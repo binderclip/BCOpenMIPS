@@ -58,6 +58,8 @@
 `define EXE_SWL 		6'b101010
 `define EXE_SW 			6'b101011
 `define EXE_SWR 		6'b101110
+`define EXE_LL 			6'b110000
+`define EXE_SC 			6'b111000
 `define EXE_PREF		6'b110011		// NOP
 
 // EXE_SPECIAL 寄存器型指令的子类型
@@ -187,6 +189,8 @@
 `define EXE_OP_LOAD_STORE_SWL 		8'b00111010
 `define EXE_OP_LOAD_STORE_SW 		8'b00111011
 `define EXE_OP_LOAD_STORE_SWR 		8'b00111100
+`define EXE_OP_LOAD_STORE_LL 		8'b00111101
+`define EXE_OP_LOAD_STORE_SC 		8'b00111110
 
 `define EXE_OP_OTHER_MTHI			8'b10001100
 `define EXE_OP_OTHER_MTLO			8'b10001101

@@ -88,12 +88,15 @@ module openmips (
 	wire						mem_whilo_o;
 	wire[`RegBus]				mem_hi_o;
 	wire[`RegBus]				mem_lo_o;
+	wire		 				mem_LLbit_we_o;
+	wire		 				mem_LLbit_value_o;
 
 	// 连接 MEM/WB 的输出与回写阶段的输入
 	wire						wb_we_i;
 	wire[`RegAddrBus]			wb_waddr_i;
 	wire[`RegBus]				wb_wdata_i;
-
+	wire 						wb_LLbit_we_i;
+	wire 						wb_LLbit_value_i;
 	// 连接 MEM/WB 的输出与 hilo_reg 的输入
 	wire						hilo_whilo_i;
 	wire[`RegBus]				hilo_hi_i;
@@ -119,6 +122,9 @@ module openmips (
 	// 连接 DIV 和 EX 模块
 	wire[`DoubleRegBus]			div_result_o;
 	wire	 					div_result_ready_o;
+
+	// 连接 LLbit 模块和 MEM 模块
+	wire						LLbit_o;
 
 	// pc_reg 模块例化
 	pc_reg pc_reg0 (
@@ -339,6 +345,10 @@ module openmips (
 		.reg2_i(mem_reg2_i),
 		// RAM 的输入
 		.mem_data_i(ram_data_i),
+		.LLbit_i(LLbit_o),
+		// WB 的输入
+		.wb_LLbit_we_i(wb_LLbit_we_i),
+		.wb_LLbit_value_i(wb_LLbit_value_i),
 		// 输出给 MEM/WB
 		.waddr_o(mem_waddr_o),
 		.we_o(mem_we_o),
@@ -351,7 +361,10 @@ module openmips (
 		.mem_we_o(ram_we_o),
 		.mem_sel_o(ram_sel_o),
 		.mem_data_o(ram_data_o),
-		.mem_ce_o(ram_ce_o)
+		.mem_ce_o(ram_ce_o),
+
+		.LLbit_we_o(mem_LLbit_we_o),
+		.LLbit_value_o(mem_LLbit_value_o)
 	);
 
 	// MEM/WB 模块例化
@@ -367,12 +380,14 @@ module openmips (
 		.mem_whilo(mem_whilo_o),
 		.mem_hi(mem_hi_o),
 		.mem_lo(mem_lo_o),
-
-		// 输出给 RegFile
+		.mem_LLbit_we(mem_LLbit_we_o),
+		.mem_LLbit_value(mem_LLbit_value_o),
+		// 输出给 WB
 		.wb_waddr(wb_waddr_i),
 		.wb_we(wb_we_i),
 		.wb_wdata(wb_wdata_i),
-
+		.wb_LLbit_we(wb_LLbit_we_i),
+		.wb_LLbit_value(wb_LLbit_value_i),
 		// 输出给 hilo_reg
 		.wb_whilo(hilo_whilo_i),
 		.wb_hi(hilo_hi_i),
@@ -415,6 +430,17 @@ module openmips (
 
 		.result_o(div_result_o),
 		.result_ready_o(div_result_ready_o)
+	);
+
+	LLbit_reg LLbit_reg0 (
+		.clk(clk),
+		.rst(rst),
+
+		.flush(1'b0),
+		.LLbit_i(wb_LLbit_value_i),
+		.we(wb_LLbit_we_i),
+
+		.LLbit_o(LLbit_o)
 	);
 
 endmodule

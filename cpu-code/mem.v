@@ -14,6 +14,9 @@ module mem (
 	input wire[`RegBus]		reg2_i,
 	input wire[`RegBus]		mem_data_i,
 
+	input wire 				LLbit_i,
+	input wire 				wb_LLbit_we_i,
+	input wire 				wb_LLbit_value_i,
 	// 输出给 MEM_WB
 	output reg[`RegAddrBus] waddr_o,
 	output reg 				we_o,
@@ -21,7 +24,8 @@ module mem (
 	output reg 				whilo_o,
 	output reg[`RegBus]		hi_o,
 	output reg[`RegBus]		lo_o,
-
+	output reg 				LLbit_we_o,
+	output reg 				LLbit_value_o,
 	// 输出给 RAM 模块
 	output reg[`RegBus]		mem_addr_o,
 	output wire 			mem_we_o,
@@ -32,9 +36,24 @@ module mem (
 
 	wire[`RegBus]	zero32;
 	reg 			mem_we;
+	reg 			LLbit;
 
 	assign mem_we_o = mem_we;
 	assign zero32 = `ZeroWord;
+
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			LLbit <= 1'b0;			
+		end
+		else begin
+			if (wb_LLbit_we_i == `WriteEnable) begin
+				LLbit <= wb_LLbit_value_i;
+			end
+			else begin
+				LLbit <= LLbit_i;
+			end
+		end
+	end
 
 	always @(*) begin
 		if (rst == `RstEnable) begin
@@ -51,6 +70,9 @@ module mem (
 			mem_sel_o <= 4'b0000;
 			mem_data_o <= `ZeroWord;
 			mem_ce_o <=	`ChipDisable;
+
+			LLbit_we_o <= `WriteDisable;
+			LLbit_value_o <= 1'b0;
 		end
 		else begin
 			waddr_o <= waddr_i;
@@ -66,6 +88,9 @@ module mem (
 			mem_sel_o <= 4'b1111;
 			mem_data_o <= `ZeroWord;
 			mem_ce_o <=	`ChipDisable;
+
+			LLbit_we_o <= `WriteDisable;
+			LLbit_value_o <= 1'b0;
 
 			case (aluop_i)
 				`EXE_OP_LOAD_STORE_LB: begin
@@ -295,6 +320,30 @@ module mem (
 							mem_sel_o <= 4'b0000;
 						end
 					endcase
+				end
+				`EXE_OP_LOAD_STORE_LL: begin
+					mem_addr_o <= mem_addr_i;
+					mem_we <= `WriteDisable;
+					mem_ce_o <= `ChipEnable;
+					wdata_o <= mem_data_i;
+					mem_sel_o <= 4'b1111;
+					LLbit_we_o <= `WriteEnable;
+					LLbit_value_o <= 1'b1;
+				end
+				`EXE_OP_LOAD_STORE_SC: begin
+					if (LLbit == 1'b1) begin
+						mem_addr_o <= mem_addr_i;
+						mem_we <= `WriteEnable;
+						mem_ce_o <= `ChipEnable;
+						wdata_o <= 32'b1;
+						mem_data_o <= reg2_i;
+						mem_sel_o <= 4'b1111;
+						LLbit_we_o <= `WriteEnable;
+						LLbit_value_o <= 1'b0;
+					end
+					else begin
+						wdata_o <= 32'b0;
+					end
 				end
 				default: begin
 				end

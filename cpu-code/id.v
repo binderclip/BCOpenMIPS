@@ -773,6 +773,24 @@ module id (
 					reg1_re_o <= `ReadEnable;
 					reg2_re_o <= `ReadEnable;
 				end
+				`EXE_LL: begin
+					alusel_o <= `EXE_RES_LOAD_STORE;
+					aluop_o <= `EXE_OP_LOAD_STORE_LL;
+					instvalid <= `InstValid;
+					we_o <= `WriteEnable;
+					waddr_o <= i_write_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadDisable;
+				end
+				`EXE_SC: begin
+					alusel_o <= `EXE_RES_LOAD_STORE;
+					aluop_o <= `EXE_OP_LOAD_STORE_SC;
+					instvalid <= `InstValid;
+					we_o <= `WriteEnable;
+					waddr_o <= i_write_address;
+					reg1_re_o <= `ReadEnable;
+					reg2_re_o <= `ReadEnable;
+				end
 				`EXE_PREF: begin
 					// 不存在 cache，此命令暂时当做 NOP 处理
 				end
