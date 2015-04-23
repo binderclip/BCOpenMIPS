@@ -5,6 +5,7 @@ module openmips (
 	input wire					clk,
 	input wire[`RegBus]			rom_data_i,
 	input wire[`RegBus]			ram_data_i,
+	input wire[5:0]				int_i,
 
 	output wire[`RegBus]		rom_addr_o,
 	output wire					rom_ce_o,
@@ -12,7 +13,8 @@ module openmips (
 	output wire[`RegBus]		ram_data_o,
 	output wire[3:0]			ram_sel_o,
 	output wire 				ram_we_o,
-	output wire 				ram_ce_o
+	output wire 				ram_ce_o,
+	output wire 				timer_int_o
 );
 
 	// PC 与 rom_addr_o 的连接
@@ -48,6 +50,7 @@ module openmips (
 	wire 						ex_is_in_delayslot;
 	wire 						is_delayslot_o;
 	wire[`RegBus]				ex_inst_i;
+
 	// 连接 EX 的输出与 EX/MEM 的输入
 	wire[`RegAddrBus]			ex_waddr_o;
 	wire 						ex_we_o;
@@ -60,11 +63,16 @@ module openmips (
 	wire[`AluOpBus]				ex_aluop_o;
 	wire[`RegBus]				ex_mem_addr_o;
 	wire[`RegBus]				ex_reg2_o;
+	wire[`RegBus]				ex_cp0_reg_data_o;
+	wire[`RegAddrBus]			ex_cp0_reg_waddr_o;
+	wire 						ex_cp0_reg_we_o;
 	// 连接 EX 的输出与 DIV 的输入
 	wire						signed_div_o;
 	wire[`RegBus]				div_opdata1_o;		// 被除数
 	wire[`RegBus]				div_opdata2_o;		// 除数
 	wire						div_start_o;
+	// 连接 EX 的输出与 CP0 的输入
+	wire[`RegAddrBus]			ex_cp0_reg_raddr_o;
 
 	// 连接 EX/MEM 的输出与 EX 的输入
 	wire[`DoubleRegBus]			hilo_temp_ex_mem_o;
@@ -80,7 +88,9 @@ module openmips (
 	wire[`AluOpBus]				mem_aluop_i;
 	wire[`RegBus]				mem_mem_addr_i;
 	wire[`RegBus]				mem_reg2_i;
-
+	wire[`RegBus]				mem_cp0_reg_data_i;
+	wire[`RegAddrBus]			mem_cp0_reg_waddr_i;
+	wire 						mem_cp0_reg_we_i;
 	// 连接 MEM 的输出和 MEM/WB 的输入
 	wire[`RegAddrBus] 			mem_waddr_o;
 	wire 						mem_we_o;
@@ -90,7 +100,9 @@ module openmips (
 	wire[`RegBus]				mem_lo_o;
 	wire		 				mem_LLbit_we_o;
 	wire		 				mem_LLbit_value_o;
-
+	wire[`RegBus]				mem_cp0_reg_data_o;
+	wire[`RegAddrBus]			mem_cp0_reg_waddr_o;
+	wire 						mem_cp0_reg_we_o;
 	// 连接 MEM/WB 的输出与回写阶段的输入
 	wire						wb_we_i;
 	wire[`RegAddrBus]			wb_waddr_i;
@@ -101,6 +113,10 @@ module openmips (
 	wire						hilo_whilo_i;
 	wire[`RegBus]				hilo_hi_i;
 	wire[`RegBus]				hilo_lo_i;
+	// 连接 MEM/WB 的输出与 CP0 EX 的输入
+	wire[`RegBus]				wb_cp0_reg_data_o;
+	wire[`RegAddrBus]			wb_cp0_reg_waddr_o;
+	wire 						wb_cp0_reg_we_o;
 
 	// 连接 hilo_reg 的输出与 EX 的输入
 	wire[`RegBus]				hilo_hi_o;
@@ -125,6 +141,9 @@ module openmips (
 
 	// 连接 LLbit 模块和 MEM 模块
 	wire						LLbit_o;
+
+	// 连接 CP0 模块和 EX 模块
+	wire[`RegBus]				ex_cp0_reg_data_i;
 
 	// pc_reg 模块例化
 	pc_reg pc_reg0 (
@@ -262,23 +281,31 @@ module openmips (
 		.aluop_o(ex_aluop_o),
 		.mem_addr_o(ex_mem_addr_o),
 		.reg2_o(ex_reg2_o),
-		// 从 hilo_reg 输入
-		.hi_i(hilo_hi_o),
-		.lo_i(hilo_lo_o),
-		// 从 MEM/WB 输入
-		.wb_whilo_i(hilo_whilo_i),
-		.wb_hi_i(hilo_hi_i),
-		.wb_lo_i(hilo_lo_i),
+		// 从 EX/MEM 输入
+		.hilo_temp_i(hilo_temp_ex_mem_o),
+		.cnt_i(cnt_ex_mem_o),
 		// 从 MEM 输入
 		.mem_whilo_i(mem_whilo_o),
 		.mem_hi_i(mem_hi_o),
 		.mem_lo_i(mem_lo_o),
-		// 从 EX/MEM 输入
-		.hilo_temp_i(hilo_temp_ex_mem_o),
-		.cnt_i(cnt_ex_mem_o),
+		.mem_cp0_reg_data(mem_cp0_reg_data_o),
+		.mem_cp0_reg_waddr(mem_cp0_reg_waddr_o),
+		.mem_cp0_reg_we(mem_cp0_reg_we_o),
+		// 从 MEM/WB 输入
+		.wb_whilo_i(hilo_whilo_i),
+		.wb_hi_i(hilo_hi_i),
+		.wb_lo_i(hilo_lo_i),
+		.wb_cp0_reg_data(wb_cp0_reg_data_o),
+		.wb_cp0_reg_waddr(wb_cp0_reg_waddr_o),
+		.wb_cp0_reg_we(wb_cp0_reg_we_o),
+		// 从 hilo_reg 输入
+		.hi_i(hilo_hi_o),
+		.lo_i(hilo_lo_o),
 		// 从 DIV 输入
 		.div_result_i(div_result_o),
 		.div_result_ready_i(div_result_ready_o),
+		// 从 CP0 输入
+		.cp0_reg_data_i(ex_cp0_reg_data_i),
 		// 输出给 EX/MEM
 		.waddr_o(ex_waddr_o),
 		.we_o(ex_we_o),
@@ -289,11 +316,16 @@ module openmips (
 		.hilo_temp_o(hilo_temp_ex_o),
 		.cnt_o(cnt_ex_o),
 		.stallreq(stallreq_from_ex),
+		.cp0_reg_data_o(ex_cp0_reg_data_o),
+		.cp0_reg_waddr_o(ex_cp0_reg_waddr_o),
+		.cp0_reg_we_o(ex_cp0_reg_we_o),
 		// 输出给 DIV
 		.signed_div_o(signed_div_o),
 		.div_opdata1_o(div_opdata1_o),		// 被除数
 		.div_opdata2_o(div_opdata2_o),		// 除数
-		.div_start_o(div_start_o)
+		.div_start_o(div_start_o),
+		// 输出给 CP0
+		.cp0_reg_raddr_o(ex_cp0_reg_raddr_o)
 	);
 
 	// EX/MEM 模块例化
@@ -315,6 +347,10 @@ module openmips (
 		.ex_mem_addr(ex_mem_addr_o),
 		.ex_reg2(ex_reg2_o),
 
+		.ex_cp0_reg_data(ex_cp0_reg_data_o),
+		.ex_cp0_reg_waddr(ex_cp0_reg_waddr_o),
+		.ex_cp0_reg_we(ex_cp0_reg_we_o),
+
 		.mem_waddr(mem_waddr_i),
 		.mem_we(mem_we_i),
 		.mem_wdata(mem_wdata_i),
@@ -326,7 +362,11 @@ module openmips (
 
 		.mem_aluop(mem_aluop_i),
 		.mem_mem_addr(mem_mem_addr_i),
-		.mem_reg2(mem_reg2_i)
+		.mem_reg2(mem_reg2_i),
+
+		.mem_cp0_reg_data(mem_cp0_reg_data_i),
+		.mem_cp0_reg_waddr(mem_cp0_reg_waddr_i),
+		.mem_cp0_reg_we(mem_cp0_reg_we_i)
 	);
 
 	// MEM 模块例化
@@ -343,6 +383,9 @@ module openmips (
 		.aluop_i(mem_aluop_i),
 		.mem_addr_i(mem_mem_addr_i),
 		.reg2_i(mem_reg2_i),
+		.cp0_reg_data_i(mem_cp0_reg_data_i),
+		.cp0_reg_waddr_i(mem_cp0_reg_waddr_i),
+		.cp0_reg_we_i(mem_cp0_reg_we_i),
 		// RAM 的输入
 		.mem_data_i(ram_data_i),
 		.LLbit_i(LLbit_o),
@@ -364,7 +407,11 @@ module openmips (
 		.mem_ce_o(ram_ce_o),
 
 		.LLbit_we_o(mem_LLbit_we_o),
-		.LLbit_value_o(mem_LLbit_value_o)
+		.LLbit_value_o(mem_LLbit_value_o),
+
+		.cp0_reg_data_o(mem_cp0_reg_data_o),
+		.cp0_reg_waddr_o(mem_cp0_reg_waddr_o),
+		.cp0_reg_we_o(mem_cp0_reg_we_o)
 	);
 
 	// MEM/WB 模块例化
@@ -382,6 +429,9 @@ module openmips (
 		.mem_lo(mem_lo_o),
 		.mem_LLbit_we(mem_LLbit_we_o),
 		.mem_LLbit_value(mem_LLbit_value_o),
+		.mem_cp0_reg_data(mem_cp0_reg_data_o),
+		.mem_cp0_reg_waddr(mem_cp0_reg_waddr_o),
+		.mem_cp0_reg_we(mem_cp0_reg_we_o),
 		// 输出给 WB
 		.wb_waddr(wb_waddr_i),
 		.wb_we(wb_we_i),
@@ -391,7 +441,11 @@ module openmips (
 		// 输出给 hilo_reg
 		.wb_whilo(hilo_whilo_i),
 		.wb_hi(hilo_hi_i),
-		.wb_lo(hilo_lo_i)
+		.wb_lo(hilo_lo_i),
+		// 输出给 CP0 EX
+		.wb_cp0_reg_data(wb_cp0_reg_data_o),
+		.wb_cp0_reg_waddr(wb_cp0_reg_waddr_o),
+		.wb_cp0_reg_we(wb_cp0_reg_we_o)
 	);
 
 	// hilo_reg 模块例化
@@ -443,4 +497,18 @@ module openmips (
 		.LLbit_o(LLbit_o)
 	);
 
+	cp0_reg cp0_reg0 (
+		.clk(clk),
+		.rst(rst),
+
+		.raddr_i(ex_cp0_reg_raddr_o),
+
+		.data_i(wb_cp0_reg_data_o),
+		.waddr_i(wb_cp0_reg_waddr_o),
+		.we_i(wb_cp0_reg_we_o),
+
+		.int_i(int_i),
+
+		.data_o(ex_cp0_reg_data_i)
+	);
 endmodule

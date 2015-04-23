@@ -17,6 +17,11 @@ module mem (
 	input wire 				LLbit_i,
 	input wire 				wb_LLbit_we_i,
 	input wire 				wb_LLbit_value_i,
+
+	input wire[`RegBus]		cp0_reg_data_i,
+	input wire[`RegAddrBus]	cp0_reg_waddr_i,
+	input wire 				cp0_reg_we_i,
+
 	// 输出给 MEM_WB
 	output reg[`RegAddrBus] waddr_o,
 	output reg 				we_o,
@@ -31,7 +36,11 @@ module mem (
 	output wire 			mem_we_o,
 	output reg[3:0]			mem_sel_o,
 	output reg[`RegBus]		mem_data_o,
-	output reg 				mem_ce_o
+	output reg 				mem_ce_o,
+
+	output reg[`RegBus]		cp0_reg_data_o,
+	output reg[`RegAddrBus]	cp0_reg_waddr_o,
+	output reg 				cp0_reg_we_o
 );
 
 	wire[`RegBus]	zero32;
@@ -73,6 +82,10 @@ module mem (
 
 			LLbit_we_o <= `WriteDisable;
 			LLbit_value_o <= 1'b0;
+
+			cp0_reg_data_o <= `ZeroWord;
+			cp0_reg_waddr_o <= 5'b00000;
+			cp0_reg_we_o <= `WriteDisable;
 		end
 		else begin
 			waddr_o <= waddr_i;
@@ -91,6 +104,10 @@ module mem (
 
 			LLbit_we_o <= `WriteDisable;
 			LLbit_value_o <= 1'b0;
+
+			cp0_reg_data_o <= cp0_reg_data_i;
+			cp0_reg_waddr_o <= cp0_reg_waddr_i;
+			cp0_reg_we_o <= cp0_reg_we_i;
 
 			case (aluop_i)
 				`EXE_OP_LOAD_STORE_LB: begin

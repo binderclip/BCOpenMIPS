@@ -15,6 +15,10 @@ module mem_wb (
 	input wire 					mem_LLbit_we,
 	input wire 					mem_LLbit_value,
 
+	input wire[`RegBus]			mem_cp0_reg_data,
+	input wire[`RegAddrBus]		mem_cp0_reg_waddr,
+	input wire 					mem_cp0_reg_we,
+
 	output reg[`RegAddrBus]		wb_waddr,
 	output reg 					wb_we,
 	output reg[`RegBus]			wb_wdata,
@@ -24,7 +28,11 @@ module mem_wb (
 	output reg[`RegBus]			wb_lo,
 
 	output reg 					wb_LLbit_we,
-	output reg 					wb_LLbit_value
+	output reg 					wb_LLbit_value,
+
+	output reg[`RegBus]			wb_cp0_reg_data,
+	output reg[`RegAddrBus]		wb_cp0_reg_waddr,
+	output reg 					wb_cp0_reg_we
 );
 
 	always @(posedge clk) begin
@@ -39,6 +47,10 @@ module mem_wb (
 
 			wb_LLbit_we <= `WriteDisable;
 			wb_LLbit_value <= 1'b0;
+
+			wb_cp0_reg_data <= `ZeroWord;
+			wb_cp0_reg_waddr <= 5'b00000;
+			wb_cp0_reg_we <= `WriteDisable;
 		end
 		else if (stall[4] == `StallEnable && stall[5] == `StallDisable) begin
 			wb_waddr <= `NOPRegAddr;
@@ -51,6 +63,10 @@ module mem_wb (
 
 			wb_LLbit_we <= `WriteDisable;
 			wb_LLbit_value <= 1'b0;
+
+			wb_cp0_reg_data <= `ZeroWord;
+			wb_cp0_reg_waddr <= 5'b00000;
+			wb_cp0_reg_we <= `WriteDisable;
 		end
 		else if (stall[4] == `StallDisable) begin
 			wb_waddr <= mem_waddr;
@@ -63,6 +79,10 @@ module mem_wb (
 
 			wb_LLbit_we <= mem_LLbit_we;
 			wb_LLbit_value <= mem_LLbit_value;
+
+			wb_cp0_reg_data <= mem_cp0_reg_data;
+			wb_cp0_reg_waddr <= mem_cp0_reg_waddr;
+			wb_cp0_reg_we <= mem_cp0_reg_we;
 		end
 	end
 

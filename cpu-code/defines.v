@@ -142,6 +142,8 @@
 `define EXE_OP_MOVE_MOVN	8'b00001001
 `define EXE_OP_MOVE_MFHI	8'b00001010
 `define EXE_OP_MOVE_MFLO	8'b00001011
+`define EXE_OP_MOVE_MFC0	8'b00001100
+`define EXE_OP_MOVE_MTC0	8'b00001101
 
 `define EXE_OP_MATH_ADD		8'b00010000
 `define EXE_OP_MATH_ADDU	8'b00010001
@@ -233,6 +235,15 @@
 `define DivAnnul 			1'b1
 `define DivNotSigned 		1'b0
 `define DivSigned 			1'b1
+
+// 与协处理器 CP0 相关的指令
+`define CP0_REG_COUNT		5'b01001
+`define CP0_REG_COMPARE		5'b01011
+`define CP0_REG_STATUS		5'b01100
+`define CP0_REG_CAUSE		5'b01101
+`define CP0_REG_EPC			5'b01110
+`define CP0_REG_PRID		5'b01111
+`define CP0_REG_CONFIG		5'b10000
 
 // 与跳转有关的宏定义
 `define RegRAAddr			5'b11111

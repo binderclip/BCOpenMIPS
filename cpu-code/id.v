@@ -797,6 +797,23 @@ module id (
 				default: begin
 				end
 			endcase
+			if (inst_i[31:21] == 11'b01000000000 && inst_i[10:0] == 11'b00000000000) begin
+				alusel_o <= `EXE_RES_MOVE;
+				aluop_o <= `EXE_OP_MOVE_MFC0;
+				instvalid <= `InstValid;
+				we_o <= `WriteEnable;
+				waddr_o <= op_rt;
+				reg1_re_o <= `ReadDisable;
+				reg2_re_o <= `ReadDisable;
+			end
+			if (inst_i[31:21] == 11'b01000000100 && inst_i[10:0] == 11'b00000000000) begin
+				alusel_o <= `EXE_RES_MOVE;
+				aluop_o <= `EXE_OP_MOVE_MTC0;
+				we_o <= `WriteDisable;
+				reg1_re_o <= `ReadEnable;
+				reg1_addr_o <= op_rt;
+				reg2_re_o <= `ReadDisable;
+			end
 		end
 	end
 

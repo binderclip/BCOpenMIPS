@@ -12,23 +12,31 @@ module ex (
 	input wire[`RegBus]			link_address_i,
 	input wire 					is_in_delayslot_i,
 	input wire[`RegBus]			inst_i,
-	// 从 mem 输入
-	input wire					mem_whilo_i,
-	input wire[`RegBus]			mem_hi_i,
-	input wire[`RegBus]			mem_lo_i,
-	// 从 wb 输入
-	input wire					wb_whilo_i,
-	input wire[`RegBus]			wb_hi_i,
-	input wire[`RegBus]			wb_lo_i,
-	// 从 hilo_reg 输入
-	input wire[`RegBus]			hi_i,
-	input wire[`RegBus]			lo_i,
 	// 从 EX/MEM 输入
 	input wire[`DoubleRegBus]	hilo_temp_i,
 	input wire[1:0]				cnt_i,
+	// 从 MEM 输入
+	input wire					mem_whilo_i,
+	input wire[`RegBus]			mem_hi_i,
+	input wire[`RegBus]			mem_lo_i,
+	input wire[`RegBus]			mem_cp0_reg_data,
+	input wire[`RegAddrBus]		mem_cp0_reg_waddr,
+	input wire 					mem_cp0_reg_we,
+	// 从 WB 输入
+	input wire					wb_whilo_i,
+	input wire[`RegBus]			wb_hi_i,
+	input wire[`RegBus]			wb_lo_i,
+	input wire[`RegBus]			wb_cp0_reg_data,
+	input wire[`RegAddrBus]		wb_cp0_reg_waddr,
+	input wire 					wb_cp0_reg_we,
+	// 从 hilo_reg 输入
+	input wire[`RegBus]			hi_i,
+	input wire[`RegBus]			lo_i,
 	// 从 DIV 输入
 	input wire[`DoubleRegBus]	div_result_i,
 	input wire 					div_result_ready_i,
+	// 从 CP0 输入
+	input wire[`RegBus]			cp0_reg_data_i,
 	// 输出给 EX/MEM
 	output reg[`RegAddrBus]		waddr_o,
 	output reg 					we_o,
@@ -41,13 +49,18 @@ module ex (
 	output wire[`AluOpBus]		aluop_o,
 	output wire[`RegBus]		mem_addr_o,
 	output wire[`RegBus]		reg2_o,
-	// 输出给 ctrl
+	output reg[`RegBus]			cp0_reg_data_o,
+	output reg[`RegAddrBus]		cp0_reg_waddr_o,
+	output reg 					cp0_reg_we_o,
+	// 输出给 CTRL
 	output reg 					stallreq,
 	// 输出给 DIV
 	output reg					signed_div_o,
 	output reg[`RegBus]			div_opdata1_o,		// 被除数
 	output reg[`RegBus]			div_opdata2_o,		// 除数
-	output reg					div_start_o
+	output reg					div_start_o,
+	// 输出给 CP0
+	output reg[`RegAddrBus]		cp0_reg_raddr_o
 );
 
 	// 保存运算结果
@@ -173,10 +186,42 @@ module ex (
 				`EXE_OP_MOVE_MFLO: begin
 					moveout <= lo_i_reg;
 				end
+				`EXE_OP_MOVE_MFC0: begin
+					// 要从 CP0 中读取的寄存器的地址
+					cp0_reg_raddr_o <= inst_i[15:11];
+					// 读取到的值
+					moveout <= cp0_reg_data_i;
+
+					// 判断是否存在数据相关
+					if (mem_cp0_reg_we == `WriteEnable && mem_cp0_reg_waddr == cp0_reg_raddr_o) begin
+						moveout <= mem_cp0_reg_data;
+					end
+					else if (wb_cp0_reg_we == `WriteEnable && wb_cp0_reg_waddr == cp0_reg_raddr_o) begin
+						moveout <= mem_cp0_reg_data;
+					end
+				end
 				default: begin
 					moveout <= `ZeroWord;
 				end
 			endcase
+		end
+	end
+
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			cp0_reg_waddr_o <= 5'b00000;
+			cp0_reg_we_o <= `WriteDisable;
+			cp0_reg_data_o <= `ZeroWord;
+		end
+		else if (aluop_i == `EXE_OP_MOVE_MTC0) begin
+			cp0_reg_waddr_o <= inst_i[15:11];
+			cp0_reg_we_o <= `WriteEnable;
+			cp0_reg_data_o <= reg1_i;
+		end
+		else begin
+			cp0_reg_waddr_o <= 5'b00000;
+			cp0_reg_we_o <= `WriteDisable;
+			cp0_reg_data_o <= `ZeroWord;
 		end
 	end
 
@@ -428,10 +473,6 @@ module ex (
 		end
 	end
 
-	always @ (*) begin
-    	stallreq = stallreq_for_madd_msub || stallreq_for_div;
-  	end
-
 	// HI LO 输出
 	always @(*) begin
 		if (rst == `RstEnable) begin
@@ -508,5 +549,9 @@ module ex (
 			end
 		endcase
 	end
+
+	always @ (*) begin
+    	stallreq = stallreq_for_madd_msub || stallreq_for_div;
+  	end
 
 endmodule
