@@ -1,0 +1,51 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Thu Apr 23 01:45:15 2015
+[*]
+[dumpfile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/openmips_min_sopc.vcd"
+[dumpfile_mtime] "Thu Apr 23 01:25:25 2015"
+[dumpfile_size] 158165
+[savefile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/other/test-files/c9_5_load_store-0423.gtkw"
+[timestart] 836900
+[size] 1387 855
+[pos] -1 -1
+*-15.000000 843900 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] openmips_min_sopc_tb.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.openmips0.
+[sst_width] 203
+[signals_width] 184
+[sst_expanded] 1
+[sst_vpaned_height] 269
+@23
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.id0.inst_i[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.mem_sel_o[3:0]
+@200
+-
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[3][31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[1][31:0]
+@200
+-
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem3[0][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem2[0][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem1[0][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem0[0][7:0]
+@200
+-
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem3[1][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem2[1][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem1[1][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem0[1][7:0]
+@200
+-
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem3[2][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem2[2][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem1[2][7:0]
+openmips_min_sopc_tb.openmips_min_sopc0.data_ram0.\data_mem0[2][7:0]
+[pattern_trace] 1
+[pattern_trace] 0

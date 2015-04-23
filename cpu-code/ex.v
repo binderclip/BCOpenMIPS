@@ -11,6 +11,7 @@ module ex (
 	input wire					we_i,
 	input wire[`RegBus]			link_address_i,
 	input wire 					is_in_delayslot_i,
+	input wire[`RegBus]			inst_i,
 	// 从 mem 输入
 	input wire					mem_whilo_i,
 	input wire[`RegBus]			mem_hi_i,
@@ -37,6 +38,9 @@ module ex (
 	output reg[`RegBus]			lo_o,
 	output reg[`DoubleRegBus]	hilo_temp_o,
 	output reg[1:0]				cnt_o,
+	output wire[`AluOpBus]		aluop_o,
+	output wire[`RegBus]		mem_addr_o,
+	output wire[`RegBus]		reg2_o,
 	// 输出给 ctrl
 	output reg 					stallreq,
 	// 输出给 DIV
@@ -71,6 +75,14 @@ module ex (
 	reg stallreq_for_madd_msub;
 	reg stallreq_for_div;
 	reg[`DoubleRegBus]	hilo_temp_stall;
+
+	// 会传递到访存阶段，届时利用其确定加载、存储类型
+	assign aluop_o = aluop_i;
+	// mem_addr_o 是加载、存储指令对应的存储器地址
+	// reg1_i 是 base
+	assign mem_addr_o = reg1_i + {{16{inst_i[15]}}, inst_i[15:0]};
+	// 存储指令要存储的数据，和 LWL、LWR 中要使用的目的寄存器的值
+	assign reg2_o = reg2_i;
 
 	// 选择 HI LO 的输入
 	always @(*) begin

@@ -46,6 +46,18 @@
 `define EXE_XORI 		6'b001110		// OR
 `define EXE_LUI 		6'b001111		// OR
 `define EXE_SPECIAL2	6'b011100		// SPECIAL2
+`define EXE_LB 			6'b100000
+`define EXE_LH 			6'b100001
+`define EXE_LWL 		6'b100010
+`define EXE_LW 			6'b100011
+`define EXE_LBU 		6'b100100
+`define EXE_LHU 		6'b100101
+`define EXE_LWR 		6'b100110
+`define EXE_SB 			6'b101000
+`define EXE_SH 			6'b101001
+`define EXE_SWL 		6'b101010
+`define EXE_SW 			6'b101011
+`define EXE_SWR 		6'b101110
 `define EXE_PREF		6'b110011		// NOP
 
 // EXE_SPECIAL 寄存器型指令的子类型
@@ -110,6 +122,7 @@
 `define EXE_RES_MATH		3'b100
 `define EXE_RES_MUL			3'b101
 `define EXE_RES_JUMP_BRANCH	3'b110
+`define EXE_RES_LOAD_STORE 	3'b111
 
 // AluOp
 `define EXE_OP_NOP_NOP 		8'b00000000
@@ -161,14 +174,37 @@
 `define EXE_OP_JUMP_BRANCH_BGEZ 	8'b00101101
 `define EXE_OP_JUMP_BRANCH_BLTZAL 	8'b00101110
 `define EXE_OP_JUMP_BRANCH_BGEZAL 	8'b00101111
+
+`define EXE_OP_LOAD_STORE_LB 		8'b00110000
+`define EXE_OP_LOAD_STORE_LH 		8'b00110001
+`define EXE_OP_LOAD_STORE_LWL 		8'b00110010
+`define EXE_OP_LOAD_STORE_LW 		8'b00110011
+`define EXE_OP_LOAD_STORE_LBU 		8'b00110100
+`define EXE_OP_LOAD_STORE_LHU 		8'b00110101
+`define EXE_OP_LOAD_STORE_LWR 		8'b00110110
+`define EXE_OP_LOAD_STORE_SB 		8'b00111000
+`define EXE_OP_LOAD_STORE_SH 		8'b00111001
+`define EXE_OP_LOAD_STORE_SWL 		8'b00111010
+`define EXE_OP_LOAD_STORE_SW 		8'b00111011
+`define EXE_OP_LOAD_STORE_SWR 		8'b00111100
+
 `define EXE_OP_OTHER_MTHI			8'b10001100
 `define EXE_OP_OTHER_MTLO			8'b10001101
 
-// 与指令存储器 ROM 相关的指令
+// 与指令存储器 ROM 相关的宏定义
 `define InstAddrBus 		31:0
 `define InstBus 			31:0
 `define InstMemNum 			131071
 `define InstMemNumLog2 		17
+
+// 与 RAM 相关的宏定义
+`define DataAddrBus			31:0
+`define DataBus 			31:0
+// `define DataMemNumber 		131072
+// `define DataMemNumberLog2 	17
+`define DataMemNumber 		16
+`define DataMemNumberLog2 	4
+`define ByteWidth 			7:0
 
 // 与通用寄存器 Regfile 有关的宏定义
 `define RegAddrBus 			4:0

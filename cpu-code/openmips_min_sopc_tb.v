@@ -38,6 +38,22 @@ module openmips_min_sopc_tb ();
 		$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[3]);
 		$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[4]);
 		$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[31]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem0[0]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem0[1]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem0[2]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem0[3]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem1[0]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem1[1]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem1[2]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem1[3]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem2[0]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem2[1]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem2[2]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem2[3]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem3[0]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem3[1]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem3[2]);
+		$dumpvars(0, openmips_min_sopc0.data_ram0.data_mem3[3]);
 		// for (reg [31:0] idx = 0; idx < 32; idx++) begin
 		// 	$dumpvars(0, openmips_min_sopc0.openmips0.regfile0.regs[idx]);
 		// end
