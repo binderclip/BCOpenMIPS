@@ -1,0 +1,26 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Thu Apr 23 03:48:43 2015
+[*]
+[dumpfile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/openmips_min_sopc.vcd"
+[dumpfile_mtime] "Thu Apr 23 03:44:59 2015"
+[dumpfile_size] 56320
+[savefile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/other/test-files/c9_12_pre_load_delay-0423.gtkw"
+[timestart] 291700
+[size] 1387 855
+[pos] -1 -1
+*-15.301554 475700 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] openmips_min_sopc_tb.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.openmips0.
+[sst_width] 193
+[signals_width] 150
+[sst_expanded] 1
+[sst_vpaned_height] 258
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[1][31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.regfile0.\regs[2][31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.clk
+[pattern_trace] 1
+[pattern_trace] 0
