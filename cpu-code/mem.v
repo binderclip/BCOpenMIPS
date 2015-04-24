@@ -24,6 +24,7 @@ module mem (
 
 	input wire[`RegBus]		excepttype_i,
 	input wire[`RegBus]		current_inst_address_i,
+	input wire 				current_inst_loaded_i,
 	input wire 				is_in_delayslot_i,
 	// 从 CP0 输入
 	input wire[`RegBus]		cp0_status_i,
@@ -57,6 +58,7 @@ module mem (
 	output wire[`RegBus]	cp0_epc_o,
 	output reg[`RegBus]		excepttype_o,
 	output wire[`RegBus]	current_inst_address_o,
+	output wire 			current_inst_loaded_o,
 	output wire 			is_in_delayslot_o
 );
 
@@ -71,6 +73,7 @@ module mem (
 	assign zero32 = `ZeroWord;
 	assign is_in_delayslot_o = is_in_delayslot_i;
 	assign current_inst_address_o = current_inst_address_i;
+	assign current_inst_loaded_o = current_inst_loaded_i;
 
 	// 得到 CP0 寄存器中的最新值
 	always @(*) begin

@@ -5,6 +5,7 @@ module id (
 
 	// 来自 IF 和 regfile
 	input wire[`InstAddrBus]	pc_i,
+	input wire 					current_inst_loaded_i,
 	input wire[`InstBus]		inst_i,
 	input wire[`RegBus]			reg1_data_i,
 	input wire[`RegBus]			reg2_data_i,
@@ -34,6 +35,7 @@ module id (
 	output wire[`RegBus]		inst_o,
 	output wire[`RegBus]		excepttype_o,
 	output wire[`RegBus]		current_inst_address_o,
+	output wire 				current_inst_loaded_o,
 	// 转移指令
 	output reg 					next_inst_in_delayslot_o,
 	output reg 					branch_flag_o,
@@ -93,6 +95,7 @@ module id (
 
 	assign excepttype_o = {19'b0, excepttype_is_eret, 2'b0, instvalid, excepttype_is_syscall, 8'b0};
 	assign current_inst_address_o = pc_i;
+	assign current_inst_loaded_o = current_inst_loaded_i;
 
 	// 对程序进行译码
 	always @(*) begin

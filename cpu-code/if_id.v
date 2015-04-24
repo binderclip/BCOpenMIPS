@@ -9,6 +9,7 @@ module if_id (
 	input wire 					flush,
 
 	output reg[`InstAddrBus]	id_pc,
+	output reg 					id_current_inst_loaded,
 	output reg[`InstBus]		id_inst
 );
 
@@ -22,14 +23,17 @@ module if_id (
 			if (flush == `Flush) begin
 				id_pc <= `ZeroWord;
 				id_inst <= `ZeroWord;
+				id_current_inst_loaded <= `NotLoaded;
 			end
 			else if (stall[1] == `StallEnable && stall[2] == `StallDisable) begin
 				id_pc <= `ZeroWord;
 				id_inst <= `ZeroWord;
+				id_current_inst_loaded <= `NotLoaded;
 			end
 			else if (stall[1] == `StallDisable) begin
 				id_pc <= if_pc;
 				id_inst <= if_inst;
+				id_current_inst_loaded <= `Loaded;
 			end
 		end
 	end

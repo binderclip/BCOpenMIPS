@@ -12,8 +12,18 @@ module cp0_reg (
 
 	input wire[5:0]			int_i,
 	input wire[`RegBus]		excepttype_i,
-	input wire[`RegBus]		current_inst_addr_i,
-	input wire 				is_in_delayslot_i,
+
+	// 当前执行的指令
+	input wire[`RegBus]		mem_current_inst_addr_i,
+	input wire 				mem_current_inst_loaded,
+	input wire 				mem_is_in_delayslot_i,
+	input wire[`RegBus]		ex_current_inst_addr_i,
+	input wire 				ex_current_inst_loaded,
+	input wire 				ex_is_in_delayslot_i,
+	input wire[`RegBus]		id_current_inst_addr_i,
+	input wire 				id_current_inst_loaded,
+	input wire 				id_is_in_delayslot_i,
+	input wire[`RegBus]		pc_current_inst_addr_i,
 
 	output reg[`RegBus]		data_o,
 	output reg[`RegBus]		count_o,
@@ -26,13 +36,8 @@ module cp0_reg (
 	output reg				timer_int_o
 );
 
-	// always @(*) begin
-	// 	if (rst == `RstEnable) begin
-	// 	end
-	// 	else begin
-	// 		cause_o[15:10] <= int_i;	// 外部中断声明
-	// 	end
-	// end
+	reg[`RegBus]			current_inst_addr_i;
+	reg 					is_in_delayslot_i;
 
 	// 对 CP0 中寄存器的写操作
 	always @(posedge clk) begin
@@ -56,6 +61,23 @@ module cp0_reg (
 		else begin
 			count_o <= count_o + 1;
 			
+			if (mem_current_inst_loaded == `Loaded) begin
+				current_inst_addr_i <= mem_current_inst_addr_i;
+				is_in_delayslot_i <= mem_is_in_delayslot_i;
+			end
+			else if (ex_current_inst_loaded == `Loaded) begin
+				current_inst_addr_i <= ex_current_inst_addr_i;
+				is_in_delayslot_i <= ex_is_in_delayslot_i;
+			end
+			else if (id_current_inst_loaded == `Loaded) begin
+				current_inst_addr_i <= id_current_inst_addr_i;
+				is_in_delayslot_i <= id_is_in_delayslot_i;
+			end
+			else begin
+				current_inst_addr_i <= pc_current_inst_addr_i;
+				is_in_delayslot_i <= `NotInDelaySlot;
+			end
+
 			if (compare_o != `ZeroWord && count_o == compare_o) begin
 				timer_int_o <= `InterruptAssert;
 			end
@@ -162,7 +184,7 @@ module cp0_reg (
 				end
 			endcase
 
-			#1 cause_o[15:10] = int_i;	// 外部中断声明
+			#1 cause_o[15:10] = int_i;	// 外部中断声明，少量延时，防止定时中断恢复之后由于 compare 值写入路径长导致再次进入中断
 		end
 	end
 	// 对 CP0 寄存器的读操作

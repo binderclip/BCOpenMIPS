@@ -14,6 +14,7 @@ module ex (
 	input wire[`RegBus]			inst_i,
 	input wire[`RegBus]			excepttype_i,
 	input wire[`RegBus]			current_inst_addr_i,
+	input wire 					current_inst_loaded_i,
 	// 从 EX/MEM 输入
 	input wire[`DoubleRegBus]	hilo_temp_i,
 	input wire[1:0]				cnt_i,
@@ -56,6 +57,7 @@ module ex (
 	output reg 					cp0_reg_we_o,
 	output wire[`RegBus]		excepttype_o,
 	output wire[`RegBus]		current_inst_addr_o,
+	output wire 				current_inst_loaded_o,
 	output wire 				is_in_delayslot_o,
 	// 输出给 CTRL
 	output reg 					stallreq,
@@ -105,6 +107,7 @@ module ex (
 	assign excepttype_o = {excepttype_i[31:12], ovassert, trapassert, excepttype_i[9:8], 8'h00};
 	assign is_in_delayslot_o = is_in_delayslot_i;
 	assign current_inst_addr_o = current_inst_addr_i;
+	assign current_inst_loaded_o = current_inst_loaded_i;
 
 	// 选择 HI LO 的输入
 	always @(*) begin

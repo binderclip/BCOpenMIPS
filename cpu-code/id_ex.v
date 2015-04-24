@@ -17,6 +17,7 @@ module id_ex (
 	input wire[`RegBus]		id_inst,
 	input wire[`RegBus]		id_excepttype,
 	input wire[`RegBus]		id_current_inst_addr,
+	input wire 				id_current_inst_loaded,
 
 	output reg[`AluOpBus]	ex_aluop,
 	output reg[`AluSelBus]	ex_alusel,
@@ -29,7 +30,8 @@ module id_ex (
 	output reg 				is_delayslot_o,
 	output reg[`RegBus]		ex_inst,
 	output reg[`RegBus]		ex_excepttype,
-	output reg[`RegBus]		ex_current_inst_addr
+	output reg[`RegBus]		ex_current_inst_addr,
+	output reg 				ex_current_inst_loaded
 );
 
 	always @(posedge clk) begin
@@ -48,6 +50,7 @@ module id_ex (
 
 			ex_excepttype <= `ZeroWord;
 			ex_current_inst_addr <= `ZeroWord;
+			ex_current_inst_loaded <= `NotLoaded;
 		end
 		else if (flush == `Flush) begin
 			ex_aluop <= `EXE_OP_NOP_NOP;
@@ -64,6 +67,7 @@ module id_ex (
 
 			ex_excepttype <= `ZeroWord;
 			ex_current_inst_addr <= `ZeroWord;
+			ex_current_inst_loaded <= `NotLoaded;
 		end
 		else if (stall[2] == `StallEnable && stall[3] == `StallDisable) begin
 			ex_aluop <= `EXE_OP_NOP_NOP;
@@ -80,6 +84,7 @@ module id_ex (
 
 			ex_excepttype <= `ZeroWord;
 			ex_current_inst_addr <= `ZeroWord;
+			ex_current_inst_loaded <= `NotLoaded;
 		end
 		else if (stall[2] == `StallDisable) begin
 			ex_aluop <= id_aluop;
@@ -96,6 +101,7 @@ module id_ex (
 
 			ex_excepttype <= id_excepttype;
 			ex_current_inst_addr <= id_current_inst_addr;
+			ex_current_inst_loaded <= id_current_inst_loaded;
 		end
 	end
 

@@ -22,6 +22,8 @@
 `define ChipDisable 		1'b0
 `define Flush 				1'b1
 `define NotFlush			1'b0
+`define Loaded 				1'b1
+`define NotLoaded 			1'b0
 
 // 流水线暂停
 `define StallEnable 	1'b1

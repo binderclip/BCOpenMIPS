@@ -21,6 +21,7 @@ module ex_mem (
 	input wire 					flush,
 	input wire[`RegBus]			ex_excepttype,
 	input wire[`RegBus]			ex_current_inst_addr,
+	input wire 					ex_current_inst_loaded,
 	input wire 					ex_is_in_delayslot,
 
 	output reg[`RegAddrBus]		mem_waddr,
@@ -39,6 +40,7 @@ module ex_mem (
 	output reg 					mem_cp0_reg_we,
 	output reg[`RegBus]			mem_excepttype,
 	output reg[`RegBus]			mem_current_inst_addr,
+	output reg 					mem_current_inst_loaded,
 	output reg 					mem_is_in_delayslot
 );
 
@@ -65,6 +67,7 @@ module ex_mem (
 
 			mem_excepttype <= `ZeroWord;
 			mem_current_inst_addr <= `ZeroWord;
+			mem_current_inst_loaded <= `NotLoaded;
 			mem_is_in_delayslot <= `NotInDelaySlot;
 		end
 		else if (flush == `Flush) begin
@@ -89,6 +92,7 @@ module ex_mem (
 
 			mem_excepttype <= `ZeroWord;
 			mem_current_inst_addr <= `ZeroWord;
+			mem_current_inst_loaded <= `NotLoaded;
 			mem_is_in_delayslot <= `NotInDelaySlot;
 		end
 		else if (stall[3] == `StallEnable && stall[4] == `StallDisable) begin
@@ -113,6 +117,7 @@ module ex_mem (
 
 			mem_excepttype <= `ZeroWord;
 			mem_current_inst_addr <= `ZeroWord;
+			mem_current_inst_loaded <= `NotLoaded;
 			mem_is_in_delayslot <= `NotInDelaySlot;
 		end
 		else if (stall[3] == `StallDisable) begin
@@ -137,6 +142,7 @@ module ex_mem (
 
 			mem_excepttype <= ex_excepttype;
 			mem_current_inst_addr <= ex_current_inst_addr;
+			mem_current_inst_loaded <= ex_current_inst_loaded;
 			mem_is_in_delayslot <= ex_is_in_delayslot;
 		end
 		else begin
