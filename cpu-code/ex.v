@@ -12,6 +12,8 @@ module ex (
 	input wire[`RegBus]			link_address_i,
 	input wire 					is_in_delayslot_i,
 	input wire[`RegBus]			inst_i,
+	input wire[`RegBus]			excepttype_i,
+	input wire[`RegBus]			current_inst_addr_i,
 	// 从 EX/MEM 输入
 	input wire[`DoubleRegBus]	hilo_temp_i,
 	input wire[1:0]				cnt_i,
@@ -52,6 +54,9 @@ module ex (
 	output reg[`RegBus]			cp0_reg_data_o,
 	output reg[`RegAddrBus]		cp0_reg_waddr_o,
 	output reg 					cp0_reg_we_o,
+	output wire[`RegBus]		excepttype_o,
+	output wire[`RegBus]		current_inst_addr_o,
+	output wire 				is_in_delayslot_o,
 	// 输出给 CTRL
 	output reg 					stallreq,
 	// 输出给 DIV
@@ -69,14 +74,11 @@ module ex (
 	reg[`RegBus] 		moveout;
 	reg[`RegBus]		mathout;
 	reg[`DoubleRegBus]	mulout;
-
 	// 存放输入
 	reg[`RegBus]		hi_i_reg;
 	reg[`RegBus]		lo_i_reg;
-
 	// 算数运算的中间变量
 	wire 				overflow_sum;
-	// wire 				reg1_eq_reg2;
 	wire 				reg1_lt_reg2;
 	wire[`RegBus]		reg2_i_mux;
 	wire[`RegBus]		reg1_i_not;
@@ -88,6 +90,9 @@ module ex (
 	reg stallreq_for_madd_msub;
 	reg stallreq_for_div;
 	reg[`DoubleRegBus]	hilo_temp_stall;
+	// exception
+	reg trapassert;
+	reg ovassert;
 
 	// 会传递到访存阶段，届时利用其确定加载、存储类型
 	assign aluop_o = aluop_i;
@@ -96,6 +101,10 @@ module ex (
 	assign mem_addr_o = reg1_i + {{16{inst_i[15]}}, inst_i[15:0]};
 	// 存储指令要存储的数据，和 LWL、LWR 中要使用的目的寄存器的值
 	assign reg2_o = reg2_i;
+	// 执行阶段的异常信息，就是在译码阶段的异常信息基础上加上自陷异常、溢出异常的信息
+	assign excepttype_o = {excepttype_i[31:12], ovassert, trapassert, excepttype_i[9:8], 8'h00};
+	assign is_in_delayslot_o = is_in_delayslot_i;
+	assign current_inst_addr_o = current_inst_addr_i;
 
 	// 选择 HI LO 的输入
 	always @(*) begin
@@ -230,7 +239,11 @@ module ex (
 	// (1) 如果是减法或者大小比较，就把数字换成它的负数形式？用补码来表示。
 	assign reg2_i_mux = ((aluop_i == `EXE_OP_MATH_SUB) ||
 						 (aluop_i == `EXE_OP_MATH_SUBU) ||
-						 (aluop_i == `EXE_OP_MATH_SLT)) ?
+						 (aluop_i == `EXE_OP_MATH_SLT) ||
+						 (aluop_i == `EXE_OP_EXCEPTION_TLT) ||
+						 (aluop_i == `EXE_OP_EXCEPTION_TLTI) ||
+						 (aluop_i == `EXE_OP_EXCEPTION_TGE) ||
+						 (aluop_i == `EXE_OP_EXCEPTION_TGEI)) ?
 						 (~reg2_i) + 1 : reg2_i;
 
 	// (2) 加法就是加法，减法就是减法，比较运算用减法
@@ -247,7 +260,12 @@ module ex (
 	// 2. o1 > 0, o2 > 0, sub < 0
 	// 3. o1 < 0, o2 < 0, sub < 0
 	// 无符号时直接比较大小
-	assign reg1_lt_reg2 = (aluop_i == `EXE_OP_MATH_SLT) ? ((reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31])) : (reg1_i < reg2_i);
+	assign reg1_lt_reg2 = (aluop_i == `EXE_OP_MATH_SLT) ||
+						  (aluop_i == `EXE_OP_EXCEPTION_TLT) ||
+						  (aluop_i == `EXE_OP_EXCEPTION_TLTI) ||
+						  (aluop_i == `EXE_OP_EXCEPTION_TGE) ||
+						  (aluop_i == `EXE_OP_EXCEPTION_TGEI) ?
+						  ((reg1_i[31] && !reg2_i[31]) || (!reg1_i[31] && !reg2_i[31] && result_sum[31]) || (reg1_i[31] && reg2_i[31] && result_sum[31])) : (reg1_i < reg2_i);
 
 	// (5) 对操作数 1 逐位取反，赋给 reg1_i_not
 	assign reg1_i_not = ~reg1_i;
@@ -339,6 +357,54 @@ module ex (
 					mathout <= `ZeroWord;
 				end
 			endcase
+		end
+	end
+
+	// 判断是否发生自陷异常
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			trapassert <= `TrapNotAssert;
+		end
+		else begin
+			trapassert <= `TrapNotAssert;
+			case (aluop_i)
+				// teg, tegi
+				`EXE_OP_EXCEPTION_TEQ, `EXE_OP_EXCEPTION_TEQI: begin
+					if (reg1_i == reg2_i) begin
+						trapassert <= `TrapAssert;
+					end
+				end
+				// tge, tgei, tgeiu, tgeu
+				`EXE_OP_EXCEPTION_TGE, `EXE_OP_EXCEPTION_TGEI, `EXE_OP_EXCEPTION_TGEIU, `EXE_OP_EXCEPTION_TGEU: begin
+					if (~reg1_lt_reg2) begin
+						trapassert <= `TrapAssert;
+					end
+				end
+				// tlt, tlti, tltiu, tltu
+				`EXE_OP_EXCEPTION_TLT, `EXE_OP_EXCEPTION_TLTI, `EXE_OP_EXCEPTION_TLTIU, `EXE_OP_EXCEPTION_TLTU: begin
+					if (reg1_lt_reg2) begin
+						trapassert <= `TrapAssert;
+					end
+				end
+				// tne, tnei
+				`EXE_OP_EXCEPTION_TNE, `EXE_OP_EXCEPTION_TNEI: begin
+					if (reg1_i != reg2_i) begin
+						trapassert <= `TrapAssert;
+					end
+				end
+			endcase
+		end
+	end
+
+	// 判断是否发生溢出异常
+	always @(*) begin
+		if ((aluop_i == `EXE_OP_MATH_ADD || aluop_i == `EXE_OP_MATH_ADDI || aluop_i == `EXE_OP_MATH_SUB) && overflow_sum == 1'b1) begin
+			we_o <= `WriteDisable;
+			ovassert <= 1'b1;
+		end
+		else begin
+			we_o <= we_i;
+			ovassert <= 1'b0;
 		end
 	end
 

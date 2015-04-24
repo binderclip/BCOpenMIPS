@@ -1,0 +1,79 @@
+[*]
+[*] GTKWave Analyzer v3.3.64 (w)1999-2014 BSI
+[*] Fri Apr 24 10:19:58 2015
+[*]
+[dumpfile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/cpu-code/openmips_min_sopc.vcd"
+[dumpfile_mtime] "Fri Apr 24 09:50:03 2015"
+[dumpfile_size] 464884
+[savefile] "/Users/clip/Inbox/BYSJ/BCOpenMIPS/other/test-files/c11_exception_3_timer-0424.gtkw"
+[timestart] 2364480
+[size] 1387 855
+[pos] -1 -1
+*-14.000000 2207000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] openmips_min_sopc_tb.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.
+[treeopen] openmips_min_sopc_tb.openmips_min_sopc0.openmips0.
+[sst_width] 193
+[signals_width] 249
+[sst_expanded] 1
+[sst_vpaned_height] 258
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.clk
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.compare_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.count_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.epc_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.current_inst_addr_i[31:0]
+@28
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.timer_int_o
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.excepttype_i[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.status_o[31:0]
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.data_i[31:0]
+@23
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.cp0_reg0.cause_o[31:0]
+@200
+-CP0
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.excepttype_o[31:0]
+@c00022
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+@28
+(0)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(1)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(2)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(3)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(4)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(5)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(6)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(7)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(8)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(9)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(10)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(11)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(12)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(13)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(14)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(15)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(16)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(17)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(18)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(19)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(20)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(21)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(22)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(23)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(24)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(25)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(26)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(27)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(28)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(29)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(30)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+(31)openmips_min_sopc_tb.openmips_min_sopc0.openmips0.mem0.cp0_cause[31:0]
+@1401200
+-group_end
+@22
+openmips_min_sopc_tb.openmips_min_sopc0.openmips0.int_i[5:0]
+[pattern_trace] 1
+[pattern_trace] 0

@@ -18,6 +18,10 @@ module ex_mem (
 	input wire[`RegBus]			ex_cp0_reg_data,
 	input wire[`RegAddrBus]		ex_cp0_reg_waddr,
 	input wire 					ex_cp0_reg_we,
+	input wire 					flush,
+	input wire[`RegBus]			ex_excepttype,
+	input wire[`RegBus]			ex_current_inst_addr,
+	input wire 					ex_is_in_delayslot,
 
 	output reg[`RegAddrBus]		mem_waddr,
 	output reg 					mem_we,
@@ -32,7 +36,10 @@ module ex_mem (
 	output reg[`RegBus]			mem_reg2,
 	output reg[`RegBus]			mem_cp0_reg_data,
 	output reg[`RegAddrBus]		mem_cp0_reg_waddr,
-	output reg 					mem_cp0_reg_we
+	output reg 					mem_cp0_reg_we,
+	output reg[`RegBus]			mem_excepttype,
+	output reg[`RegBus]			mem_current_inst_addr,
+	output reg 					mem_is_in_delayslot
 );
 
 	always @(posedge clk) begin
@@ -55,6 +62,34 @@ module ex_mem (
 			mem_cp0_reg_data <= `ZeroWord;
 			mem_cp0_reg_waddr <= 5'b0000;
 			mem_cp0_reg_we <= `WriteDisable;
+
+			mem_excepttype <= `ZeroWord;
+			mem_current_inst_addr <= `ZeroWord;
+			mem_is_in_delayslot <= `NotInDelaySlot;
+		end
+		else if (flush == `Flush) begin
+			mem_waddr <= `NOPRegAddr;
+			mem_we <= `WriteDisable;
+			mem_wdata <= `ZeroWord;
+
+			mem_whilo <= `WriteDisable;
+			mem_hi <= `ZeroWord;
+			mem_lo <= `ZeroWord;
+
+			hilo_o <= {`ZeroWord, `ZeroWord};
+			cnt_o <= 2'b00;
+
+			mem_aluop <= `EXE_OP_NOP_NOP;
+			mem_mem_addr <= `ZeroWord;
+			mem_reg2 <= `ZeroWord;
+
+			mem_cp0_reg_data <= `ZeroWord;
+			mem_cp0_reg_waddr <= 5'b0000;
+			mem_cp0_reg_we <= `WriteDisable;
+
+			mem_excepttype <= `ZeroWord;
+			mem_current_inst_addr <= `ZeroWord;
+			mem_is_in_delayslot <= `NotInDelaySlot;
 		end
 		else if (stall[3] == `StallEnable && stall[4] == `StallDisable) begin
 			mem_waddr <= `NOPRegAddr;
@@ -75,6 +110,10 @@ module ex_mem (
 			mem_cp0_reg_data <= `ZeroWord;
 			mem_cp0_reg_waddr <= 5'b0000;
 			mem_cp0_reg_we <= `WriteDisable;
+
+			mem_excepttype <= `ZeroWord;
+			mem_current_inst_addr <= `ZeroWord;
+			mem_is_in_delayslot <= `NotInDelaySlot;
 		end
 		else if (stall[3] == `StallDisable) begin
 			mem_waddr <= ex_waddr;
@@ -95,6 +134,10 @@ module ex_mem (
 			mem_cp0_reg_data <= ex_cp0_reg_data;
 			mem_cp0_reg_waddr <= ex_cp0_reg_waddr;
 			mem_cp0_reg_we <= ex_cp0_reg_we;
+
+			mem_excepttype <= ex_excepttype;
+			mem_current_inst_addr <= ex_current_inst_addr;
+			mem_is_in_delayslot <= ex_is_in_delayslot;
 		end
 		else begin
 			hilo_o <= hilo_i;

@@ -32,6 +32,8 @@ module id (
 	output reg[`RegAddrBus] 	waddr_o,		// 写入的寄存器的地址
 	output reg 					we_o,			// 是否有需要写入的寄存器
 	output wire[`RegBus]		inst_o,
+	output wire[`RegBus]		excepttype_o,
+	output wire[`RegBus]		current_inst_address_o,
 	// 转移指令
 	output reg 					next_inst_in_delayslot_o,
 	output reg 					branch_flag_o,
@@ -71,6 +73,9 @@ module id (
 	reg stallreq_for_reg1_loadrelate;
 	reg stallreq_for_reg2_loadrelate;
 
+	reg excepttype_is_syscall;
+	reg excepttype_is_eret;
+
 	assign inst_o = inst_i;
 	assign pc_plus_8 = pc_i + 8;
 	assign pc_plus_4 = pc_i + 4;
@@ -85,6 +90,9 @@ module id (
 							   (ex_aluop_i == `EXE_OP_LOAD_STORE_LHU) ||
 							   (ex_aluop_i == `EXE_OP_LOAD_STORE_LWR)) ? 1'b1 : 1'b0;
 	assign stallreq = stallreq_for_reg1_loadrelate | stallreq_for_reg2_loadrelate;
+
+	assign excepttype_o = {19'b0, excepttype_is_eret, 2'b0, instvalid, excepttype_is_syscall, 8'b0};
+	assign current_inst_address_o = pc_i;
 
 	// 对程序进行译码
 	always @(*) begin
@@ -104,6 +112,8 @@ module id (
 			branch_target_address_o <= `ZeroWord;
 			branch_flag_o <= `NotBranch;
 			next_inst_in_delayslot_o <= `NotInDelaySlot;
+			excepttype_is_syscall <= 1'b0;
+			excepttype_is_eret <= 1'b0;
 		end
 		else begin
 			alusel_o <= `EXE_RES_NOP;
@@ -120,6 +130,8 @@ module id (
 			branch_target_address_o <= `ZeroWord;
 			branch_flag_o <= `NotBranch;
 			next_inst_in_delayslot_o <= `NotInDelaySlot;
+			excepttype_is_syscall <= 1'b0;
+			excepttype_is_eret <= 1'b0;
 			case (op_class)
 				`EXE_SPECIAL: begin
 					if (op_rs == 0) begin
@@ -390,6 +402,65 @@ module id (
 							end
 						endcase
 					end
+					case (op_subclass)
+						`EXE_SPC_SYSCALL: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_SYSCALL;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadDisable;
+							reg2_re_o <= `ReadDisable;
+							excepttype_is_syscall <= 1'b1;
+						end
+						`EXE_SPC_TGE: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TGE;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+						`EXE_SPC_TGEU: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TGEU;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+						`EXE_SPC_TLT: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TLT;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+						`EXE_SPC_TLTU: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TLTU;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+						`EXE_SPC_TEQ: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TEQ;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+						`EXE_SPC_TNE: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TNE;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadEnable;
+						end
+					endcase
 				end
 				`EXE_J: begin
 					alusel_o <= `EXE_RES_JUMP_BRANCH;
@@ -525,6 +596,60 @@ module id (
 								branch_flag_o <= `Branch;
 								next_inst_in_delayslot_o <= `InDelaySlot;
 							end
+						end
+						`EXE_REGIMM_TGEI: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TGEI;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+							imm <= {{16{inst_i[15]}}, inst_i[15:0]};
+						end
+						`EXE_REGIMM_TGEIU: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TGEIU;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+							imm <= {{16{inst_i[15]}}, inst_i[15:0]};
+						end
+						`EXE_REGIMM_TLTI: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TLTI;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+							imm <= {{16{inst_i[15]}}, inst_i[15:0]};
+						end
+						`EXE_REGIMM_TLTIU: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TLTIU;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+							imm <= {{16{inst_i[15]}}, inst_i[15:0]};
+						end
+						`EXE_REGIMM_TEQI: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TEQI;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+							imm <= {{16{inst_i[15]}}, inst_i[15:0]};
+						end
+						`EXE_REGIMM_TNEI: begin
+							alusel_o <= `EXE_RES_NOP;
+							aluop_o <= `EXE_OP_EXCEPTION_TNEI;
+							instvalid <= `InstValid;
+							we_o <= `WriteDisable;
+							reg1_re_o <= `ReadEnable;
+							reg2_re_o <= `ReadDisable;
+							imm <= {{16{inst_i[15]}}, inst_i[15:0]};
 						end
 						default: begin
 						end
@@ -809,10 +934,20 @@ module id (
 			if (inst_i[31:21] == 11'b01000000100 && inst_i[10:0] == 11'b00000000000) begin
 				alusel_o <= `EXE_RES_MOVE;
 				aluop_o <= `EXE_OP_MOVE_MTC0;
+				instvalid <= `InstValid;
 				we_o <= `WriteDisable;
 				reg1_re_o <= `ReadEnable;
 				reg1_addr_o <= op_rt;
 				reg2_re_o <= `ReadDisable;
+			end
+			if (inst_i == `EXE_ERET) begin
+				alusel_o <= `EXE_RES_NOP;
+				aluop_o <= `EXE_OP_EXCEPTION_ERET;
+				instvalid <= `InstValid;
+				we_o <= `WriteDisable;
+				reg1_re_o <= `ReadDisable;
+				reg2_re_o <= `ReadDisable;
+				excepttype_is_eret <= 1'b1;
 			end
 		end
 	end

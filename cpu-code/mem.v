@@ -22,6 +22,18 @@ module mem (
 	input wire[`RegAddrBus]	cp0_reg_waddr_i,
 	input wire 				cp0_reg_we_i,
 
+	input wire[`RegBus]		excepttype_i,
+	input wire[`RegBus]		current_inst_address_i,
+	input wire 				is_in_delayslot_i,
+	// 从 CP0 输入
+	input wire[`RegBus]		cp0_status_i,
+	input wire[`RegBus]		cp0_cause_i,
+	input wire[`RegBus]		cp0_epc_i,
+	// 从 WB 输入，有关 CP0 防止数据相关
+	input wire 				wb_cp0_reg_we,
+	input wire[4:0]			wb_cp0_reg_write_addr,
+	input wire[`RegBus]		wb_cp0_reg_write_data,
+
 	// 输出给 MEM_WB
 	output reg[`RegAddrBus] waddr_o,
 	output reg 				we_o,
@@ -40,15 +52,94 @@ module mem (
 
 	output reg[`RegBus]		cp0_reg_data_o,
 	output reg[`RegAddrBus]	cp0_reg_waddr_o,
-	output reg 				cp0_reg_we_o
+	output reg 				cp0_reg_we_o,
+
+	output wire[`RegBus]	cp0_epc_o,
+	output reg[`RegBus]		excepttype_o,
+	output wire[`RegBus]	current_inst_address_o,
+	output wire 			is_in_delayslot_o
 );
 
 	wire[`RegBus]	zero32;
 	reg 			mem_we;
 	reg 			LLbit;
+	reg[`RegBus]	cp0_status;
+	reg[`RegBus]	cp0_cause;
+	reg[`RegBus]	cp0_epc;
 
-	assign mem_we_o = mem_we;
+	assign mem_we_o = mem_we & (~(|excepttype_o));
 	assign zero32 = `ZeroWord;
+	assign is_in_delayslot_o = is_in_delayslot_i;
+	assign current_inst_address_o = current_inst_address_i;
+
+	// 得到 CP0 寄存器中的最新值
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			cp0_status <= `ZeroWord;			
+		end
+		else if (wb_cp0_reg_we == `WriteEnable && wb_cp0_reg_write_addr == `CP0_REG_STATUS) begin
+			cp0_status <= wb_cp0_reg_write_data;
+		end
+		else begin
+			cp0_status <= cp0_status_i;
+		end
+	end
+
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			cp0_epc <= `ZeroWord;			
+		end
+		else if (wb_cp0_reg_we == `WriteEnable && wb_cp0_reg_write_addr == `CP0_REG_EPC) begin
+			cp0_epc <= wb_cp0_reg_write_data;
+		end
+		else begin
+			cp0_epc <= cp0_epc_i;
+		end
+	end
+
+	assign cp0_epc_o = cp0_epc;
+
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			cp0_cause <= `ZeroWord;			
+		end
+		else if (wb_cp0_reg_we == `WriteEnable && wb_cp0_reg_write_addr == `CP0_REG_CAUSE) begin
+			cp0_cause[9:8] <= wb_cp0_reg_write_data[9:8];
+			cp0_cause[22] <= wb_cp0_reg_write_data[22];
+			cp0_cause[23] <= wb_cp0_reg_write_data[23];
+		end
+		else begin
+			cp0_cause <= cp0_cause_i;
+		end
+	end
+
+	// 最终的异常类型
+	always @(*) begin
+		if (rst == `RstEnable) begin
+			excepttype_o <= `ZeroWord;			
+		end
+		else begin
+			excepttype_o <= `ZeroWord;
+			if (((cp0_cause[15:8] & cp0_status[15:8]) != 8'h00) && (cp0_status[1] == 1'b0 && cp0_status[0] == 1'b1)) begin
+				excepttype_o <= `EXCEPTTYPE_INTERRUPT;	// interrupt
+			end
+			else if (excepttype_i[8] == 1'b1) begin
+				excepttype_o <= `EXCEPTTYPE_SYSCALL;	// syscall
+			end
+			else if (excepttype_i[9] == 1'b1) begin
+				excepttype_o <= `EXCEPTTYPE_INST_INVALID;	// inst_invalid
+			end
+			else if (excepttype_i[10] == 1'b1) begin
+				excepttype_o <= `EXCEPTTYPE_TRAP;	// trap
+			end
+			else if (excepttype_i[11] == 1'b1) begin
+				excepttype_o <= `EXCEPTTYPE_OV;	// ov
+			end
+			else if (excepttype_i[12] == 1'b1) begin
+				excepttype_o <= `EXCEPTTYPE_ERET;	// eret
+			end
+		end
+	end
 
 	always @(*) begin
 		if (rst == `RstEnable) begin

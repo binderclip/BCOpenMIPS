@@ -18,6 +18,7 @@ module mem_wb (
 	input wire[`RegBus]			mem_cp0_reg_data,
 	input wire[`RegAddrBus]		mem_cp0_reg_waddr,
 	input wire 					mem_cp0_reg_we,
+	input wire 					flush,
 
 	output reg[`RegAddrBus]		wb_waddr,
 	output reg 					wb_we,
@@ -37,6 +38,22 @@ module mem_wb (
 
 	always @(posedge clk) begin
 		if (rst == `RstEnable) begin
+			wb_waddr <= `NOPRegAddr;
+			wb_we <= `WriteDisable;
+			wb_wdata <= `ZeroWord;
+
+			wb_whilo <= `WriteDisable;
+			wb_hi <= `ZeroWord;
+			wb_lo <= `ZeroWord;
+
+			wb_LLbit_we <= `WriteDisable;
+			wb_LLbit_value <= 1'b0;
+
+			wb_cp0_reg_data <= `ZeroWord;
+			wb_cp0_reg_waddr <= 5'b00000;
+			wb_cp0_reg_we <= `WriteDisable;
+		end
+		else if (flush == `Flush) begin
 			wb_waddr <= `NOPRegAddr;
 			wb_we <= `WriteDisable;
 			wb_wdata <= `ZeroWord;
